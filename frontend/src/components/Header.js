@@ -51,6 +51,9 @@ function Header() {
           <Link to="/" className={isActive('/')} onClick={closeMenu}>
             Início
           </Link>
+          <Link to="/dashboard" className={isActive('/dashboard')} onClick={closeMenu}>
+            Dashboard
+          </Link>
           <Link to="/add" className={isActive('/add')} onClick={closeMenu}>
             Adicionar
           </Link>

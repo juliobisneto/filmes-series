@@ -6,6 +6,7 @@ import Header from './components/Header';
 import Home from './pages/Home';
 import FormPage from './pages/FormPage';
 import DetailsPage from './pages/DetailsPage';
+import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
@@ -46,6 +47,11 @@ function App() {
             <Route path="/profile" element={
               <PrivateRoute>
                 <ProfilePage />
+              </PrivateRoute>
+            } />
+            <Route path="/dashboard" element={
+              <PrivateRoute>
+                <DashboardPage />
               </PrivateRoute>
             } />
             
