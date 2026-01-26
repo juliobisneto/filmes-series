@@ -1,0 +1,121 @@
+.header {
+  background-color: var(--secondary-color);
+  border-bottom: 2px solid var(--primary-color);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo h1 {
+  font-size: 1.8rem;
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.header-logo span {
+  font-size: 2rem;
+}
+
+.header-nav {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.header-nav a {
+  padding: 8px 16px;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+  font-weight: 500;
+}
+
+.header-nav a:hover {
+  background-color: var(--hover-color);
+}
+
+.header-nav a.active {
+  background-color: var(--primary-color);
+}
+
+.user-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), #ff6b6b);
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+.btn-logout {
+  padding: 8px 16px;
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--hover-color);
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-logout:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  color: var(--text-color);
+  font-size: 1.5rem;
+  padding: 8px;
+}
+
+/* Mobile Menu */
+@media (max-width: 768px) {
+  .header-nav {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background-color: var(--secondary-color);
+    flex-direction: column;
+    padding: 20px;
+    gap: 10px;
+    transform: translateX(-100%);
+    transition: var(--transition);
+    border-bottom: 2px solid var(--primary-color);
+  }
+
+  .header-nav.open {
+    transform: translateX(0);
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .header-logo h1 {
+    font-size: 1.4rem;
+  }
+}

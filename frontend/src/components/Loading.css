@@ -1,0 +1,38 @@
+.loading,
+.error-message,
+.empty-message {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 1.1rem;
+}
+
+.loading {
+  color: var(--text-secondary);
+}
+
+.loading span {
+  font-size: 3rem;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  color: var(--primary-color);
+  background-color: rgba(229, 9, 20, 0.1);
+  border-radius: var(--border-radius);
+  padding: 20px;
+}
+
+.empty-message {
+  color: var(--text-secondary);
+}
+
+.empty-message span {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 15px;
+}

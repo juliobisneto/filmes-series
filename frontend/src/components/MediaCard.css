@@ -1,0 +1,242 @@
+.media-card {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  transition: var(--transition);
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Destaque para filmes "Quero Ver" */
+.media-card.highlight-quero-ver {
+  border: 2px solid var(--warning-color);
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.25);
+}
+
+.media-card.highlight-quero-ver::before {
+  content: '⭐ QUERO VER';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, var(--warning-color), #ffb347);
+  color: #000;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+.media-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.3);
+}
+
+.media-card.highlight-quero-ver:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px rgba(255, 165, 0, 0.4);
+  border-color: #ffb347;
+}
+
+.media-card-poster {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  background-color: var(--hover-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 3rem;
+}
+
+.media-card-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-card-content {
+  padding: 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.media-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.media-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.media-card-type {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.media-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.media-card-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.media-card-info-row span {
+  font-weight: 500;
+}
+
+.media-card-genre {
+  color: var(--text-color);
+  font-size: 0.85rem;
+}
+
+.media-card-ratings {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hover-color);
+}
+
+.rating-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rating-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.rating-value {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.rating-stars {
+  color: #ffd700;
+}
+
+.media-card-status {
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-badge.quero_ver {
+  background-color: rgba(255, 165, 0, 0.2);
+  color: var(--warning-color);
+  border: 1px solid var(--warning-color);
+}
+
+.status-badge.assistindo {
+  background-color: rgba(33, 150, 243, 0.2);
+  color: #2196f3;
+  border: 1px solid #2196f3;
+}
+
+.status-badge.ja_vi {
+  background-color: rgba(70, 211, 105, 0.2);
+  color: var(--success-color);
+  border: 1px solid var(--success-color);
+}
+
+.media-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.media-card-actions button {
+  flex: 1;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.btn-edit {
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--text-color);
+}
+
+.btn-edit:hover {
+  background-color: var(--text-color);
+  color: var(--background-color);
+}
+
+.btn-delete {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.btn-delete:hover {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .media-card-poster {
+    height: 300px;
+  }
+
+  .media-card-title {
+    font-size: 1rem;
+  }
+}

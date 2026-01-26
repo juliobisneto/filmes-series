@@ -1,0 +1,124 @@
+.profile-page {
+  padding: 30px 0;
+  min-height: calc(100vh - 70px);
+}
+
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profile-header {
+  background-color: var(--card-bg);
+  padding: 30px;
+  border-radius: var(--border-radius);
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), #ff6b6b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.profile-info h1 {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+}
+
+.profile-info p {
+  color: var(--text-secondary);
+}
+
+.profile-section {
+  background-color: var(--card-bg);
+  padding: 30px;
+  border-radius: var(--border-radius);
+  margin-bottom: 20px;
+}
+
+.profile-section h2 {
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-save, .btn-cancel {
+  flex: 1;
+  padding: 12px;
+  border-radius: 4px;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.btn-save {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border: none;
+}
+
+.btn-save:hover:not(:disabled) {
+  background-color: #c40812;
+}
+
+.btn-cancel {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--hover-color);
+}
+
+.btn-cancel:hover {
+  background-color: var(--hover-color);
+}
+
+.success-message {
+  padding: 12px;
+  background-color: rgba(70, 211, 105, 0.2);
+  border: 1px solid var(--success-color);
+  border-radius: 4px;
+  color: var(--success-color);
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .profile-section {
+    padding: 20px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+}
