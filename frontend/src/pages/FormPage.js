@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mediaService, omdbService } from '../services/api';
 import { Loading, ErrorMessage } from '../components/Loading';
@@ -38,7 +38,7 @@ function FormPage() {
     runtime: ''
   });
 
-  const loadMedia = async () => {
+  const loadMedia = useCallback(async () => {
     try {
       setLoading(true);
       const response = await mediaService.getById(id);
@@ -49,7 +49,7 @@ function FormPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     if (isEdit) {
@@ -60,7 +60,7 @@ function FormPage() {
         searchInputRef.current.focus();
       }
     }
-  }, [id, isEdit, loadMedia]);
+  }, [isEdit, loadMedia]);
 
   const handleSearchIMDB = async () => {
     if (!searchQuery.trim()) return;

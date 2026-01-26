@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mediaService } from '../services/api';
 import { Loading, ErrorMessage } from '../components/Loading';
@@ -11,7 +11,7 @@ function DetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadMedia = async () => {
+  const loadMedia = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -23,11 +23,11 @@ function DetailsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     loadMedia();
-  }, [id, loadMedia]);
+  }, [loadMedia]);
 
   const handleDelete = async () => {
     if (window.confirm(`Tem certeza que deseja excluir "${media.title}"?`)) {
