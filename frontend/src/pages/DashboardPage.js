@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { mediaService } from '../services/api';
 import { Loading, ErrorMessage } from '../components/Loading';
 import StatCard from '../components/StatCard';
@@ -7,22 +7,16 @@ import ChartPie from '../components/ChartPie';
 import './DashboardPage.css';
 
 function DashboardPage() {
-  const [media, setMedia] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState(null);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await mediaService.getAll();
       const mediaData = response.data;
-      setMedia(mediaData);
       calculateStats(mediaData);
     } catch (err) {
       console.error('Erro ao carregar dados:', err);
@@ -30,7 +24,11 @@ function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const calculateStats = (mediaData) => {
     // Estatísticas gerais
