@@ -1,30 +1,38 @@
 const sqlite3 = require('sqlite3').verbose();
+const { Pool } = require('pg');
 const path = require('path');
 const fs = require('fs');
 const backupManager = require('./utils/backup');
 
+const USE_POSTGRES = !!process.env.DATABASE_URL;
 const DB_PATH = path.join(__dirname, 'filmes_series.db');
 
 class Database {
   constructor() {
-    // Fazer backup antes de conectar (se o banco existir)
-    this.ensureBackupBeforeInit();
-    
-    this.db = new sqlite3.Database(DB_PATH, (err) => {
-      if (err) {
-        console.error('Erro ao conectar ao banco de dados:', err.message);
-      } else {
-        console.log('Conectado ao banco de dados SQLite');
-        this.initDatabase();
-      }
-    });
+    if (USE_POSTGRES) {
+      console.log('🐘 Usando PostgreSQL (Produção)');
+      this.pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      });
+      this.initPostgres();
+    } else {
+      console.log('📁 Usando SQLite (Desenvolvimento)');
+      this.ensureBackupBeforeInit();
+      this.db = new sqlite3.Database(DB_PATH, (err) => {
+        if (err) {
+          console.error('Erro ao conectar ao banco de dados:', err.message);
+        } else {
+          console.log('Conectado ao banco de dados SQLite');
+          this.initSQLite();
+        }
+      });
+    }
   }
 
   ensureBackupBeforeInit() {
-    // Se o banco já existe, criar backup de segurança
     if (fs.existsSync(DB_PATH)) {
       const stats = fs.statSync(DB_PATH);
-      // Só faz backup se o arquivo tiver conteúdo (> 0 bytes)
       if (stats.size > 0) {
         console.log('📦 Criando backup de segurança antes de inicializar...');
         try {
@@ -36,8 +44,61 @@ class Database {
     }
   }
 
-  initDatabase() {
-    // Tabela de usuários
+  async initPostgres() {
+    try {
+      // Criar tabelas no PostgreSQL
+      await this.pool.query(`
+        CREATE TABLE IF NOT EXISTS users (
+          id SERIAL PRIMARY KEY,
+          email VARCHAR(255) UNIQUE NOT NULL,
+          password VARCHAR(255) NOT NULL,
+          name VARCHAR(255),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+
+      await this.pool.query(`
+        CREATE TABLE IF NOT EXISTS user_profiles (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+          favorite_genres TEXT,
+          favorite_movies TEXT,
+          favorite_directors TEXT,
+          favorite_actors TEXT,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+
+      await this.pool.query(`
+        CREATE TABLE IF NOT EXISTS media (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          title VARCHAR(255) NOT NULL,
+          type VARCHAR(50) NOT NULL,
+          genre VARCHAR(255),
+          status VARCHAR(50) NOT NULL,
+          rating INTEGER,
+          notes TEXT,
+          date_watched DATE,
+          date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          imdb_id VARCHAR(50),
+          imdb_rating VARCHAR(10),
+          poster_url TEXT,
+          plot TEXT,
+          year VARCHAR(10),
+          director VARCHAR(255),
+          actors TEXT,
+          runtime VARCHAR(50)
+        );
+      `);
+
+      console.log('✅ Tabelas PostgreSQL criadas ou já existem');
+    } catch (error) {
+      console.error('❌ Erro ao criar tabelas PostgreSQL:', error.message);
+    }
+  }
+
+  initSQLite() {
     const createUsersTable = `
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,7 +109,6 @@ class Database {
       )
     `;
 
-    // Tabela de perfis de usuário
     const createProfilesTable = `
       CREATE TABLE IF NOT EXISTS user_profiles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,7 +122,6 @@ class Database {
       )
     `;
 
-    // Tabela de filmes/séries
     const createMediaTable = `
       CREATE TABLE IF NOT EXISTS media (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -87,81 +146,94 @@ class Database {
       )
     `;
 
-    this.db.run(createUsersTable, (err) => {
-      if (err) {
-        console.error('Erro ao criar tabela users:', err.message);
-      } else {
-        console.log('Tabela users criada ou já existe');
-      }
-    });
-
-    this.db.run(createProfilesTable, (err) => {
-      if (err) {
-        console.error('Erro ao criar tabela user_profiles:', err.message);
-      } else {
-        console.log('Tabela user_profiles criada ou já existe');
-      }
-    });
-
-    this.db.run(createMediaTable, (err) => {
-      if (err) {
-        console.error('Erro ao criar tabela media:', err.message);
-      } else {
-        console.log('Tabela media criada ou já existe');
-      }
-    });
+    this.db.run(createUsersTable);
+    this.db.run(createProfilesTable);
+    this.db.run(createMediaTable);
+    console.log('✅ Tabelas SQLite criadas ou já existem');
   }
 
   // Método genérico para executar queries
   run(sql, params = []) {
-    return new Promise((resolve, reject) => {
-      this.db.run(sql, params, function(err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve({ id: this.lastID, changes: this.changes });
-        }
+    if (USE_POSTGRES) {
+      // Converter placeholders ? para $1, $2, etc
+      let pgSql = sql;
+      let paramIndex = 1;
+      pgSql = pgSql.replace(/\?/g, () => `$${paramIndex++}`);
+      
+      return this.pool.query(pgSql, params).then(result => ({
+        id: result.rows[0]?.id,
+        changes: result.rowCount
+      }));
+    } else {
+      return new Promise((resolve, reject) => {
+        this.db.run(sql, params, function(err) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve({ id: this.lastID, changes: this.changes });
+          }
+        });
       });
-    });
+    }
   }
 
   // Buscar um registro
   get(sql, params = []) {
-    return new Promise((resolve, reject) => {
-      this.db.get(sql, params, (err, row) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(row);
-        }
+    if (USE_POSTGRES) {
+      let pgSql = sql;
+      let paramIndex = 1;
+      pgSql = pgSql.replace(/\?/g, () => `$${paramIndex++}`);
+      
+      return this.pool.query(pgSql, params).then(result => result.rows[0]);
+    } else {
+      return new Promise((resolve, reject) => {
+        this.db.get(sql, params, (err, row) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(row);
+          }
+        });
       });
-    });
+    }
   }
 
   // Buscar múltiplos registros
   all(sql, params = []) {
-    return new Promise((resolve, reject) => {
-      this.db.all(sql, params, (err, rows) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(rows);
-        }
+    if (USE_POSTGRES) {
+      let pgSql = sql;
+      let paramIndex = 1;
+      pgSql = pgSql.replace(/\?/g, () => `$${paramIndex++}`);
+      
+      return this.pool.query(pgSql, params).then(result => result.rows);
+    } else {
+      return new Promise((resolve, reject) => {
+        this.db.all(sql, params, (err, rows) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        });
       });
-    });
+    }
   }
 
   // Fechar conexão
   close() {
-    return new Promise((resolve, reject) => {
-      this.db.close((err) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
+    if (USE_POSTGRES) {
+      return this.pool.end();
+    } else {
+      return new Promise((resolve, reject) => {
+        this.db.close((err) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
       });
-    });
+    }
   }
 }
 
