@@ -38,17 +38,6 @@ function FormPage() {
     runtime: ''
   });
 
-  useEffect(() => {
-    if (isEdit) {
-      loadMedia();
-    } else {
-      // Dar foco no campo de busca quando estiver adicionando novo filme
-      if (searchInputRef.current) {
-        searchInputRef.current.focus();
-      }
-    }
-  }, [id]);
-
   const loadMedia = async () => {
     try {
       setLoading(true);
@@ -61,6 +50,17 @@ function FormPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isEdit) {
+      loadMedia();
+    } else {
+      // Dar foco no campo de busca quando estiver adicionando novo filme
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+      }
+    }
+  }, [id, isEdit, loadMedia]);
 
   const handleSearchIMDB = async () => {
     if (!searchQuery.trim()) return;

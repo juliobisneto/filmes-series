@@ -17,10 +17,6 @@ function Filters({ onFilter, onClear }) {
     }));
   };
 
-  const handleFilter = () => {
-    onFilter(filters);
-  };
-
   const handleClear = () => {
     const clearedFilters = {
       search: '',
@@ -36,12 +32,12 @@ function Filters({ onFilter, onClear }) {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (filters.search || filters.status || filters.type || filters.genre) {
-        handleFilter();
+        onFilter(filters);
       }
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [filters]);
+  }, [filters, onFilter]);
 
   return (
     <div className="filters">

@@ -11,10 +11,6 @@ function DetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadMedia();
-  }, [id]);
-
   const loadMedia = async () => {
     try {
       setLoading(true);
@@ -28,6 +24,10 @@ function DetailsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadMedia();
+  }, [id, loadMedia]);
 
   const handleDelete = async () => {
     if (window.confirm(`Tem certeza que deseja excluir "${media.title}"?`)) {
