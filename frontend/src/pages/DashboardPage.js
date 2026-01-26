@@ -49,12 +49,16 @@ function DashboardPage() {
       ? (rated.reduce((sum, m) => sum + m.rating, 0) / rated.length).toFixed(1)
       : 0;
 
-    // Por ano
+    // Por ano (normalizar removendo caracteres especiais)
     const byYear = {};
     mediaData.forEach(m => {
       if (m.year) {
-        const year = m.year.toString();
-        byYear[year] = (byYear[year] || 0) + 1;
+        // Extrair apenas os 4 dígitos do ano, ignorando qualquer caractere extra
+        const yearMatch = m.year.toString().match(/(\d{4})/);
+        if (yearMatch) {
+          const year = yearMatch[1];
+          byYear[year] = (byYear[year] || 0) + 1;
+        }
       }
     });
     const yearData = Object.entries(byYear)
