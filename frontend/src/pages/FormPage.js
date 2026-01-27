@@ -35,14 +35,31 @@ function FormPage() {
     year: '',
     director: '',
     actors: '',
-    runtime: ''
+    runtime: '',
+    country: ''
   });
+
+  // Função para formatar data do banco (YYYY-MM-DD ou ISO) para input date
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    // Se já está no formato YYYY-MM-DD, retorna direto
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return dateString;
+    // Se está em ISO (com hora), extrai só a data
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    return date.toISOString().split('T')[0];
+  };
 
   const loadMedia = useCallback(async () => {
     try {
       setLoading(true);
       const response = await mediaService.getById(id);
-      setFormData(response.data);
+      const data = response.data;
+      // Formatar data antes de setar no estado
+      if (data.date_watched) {
+        data.date_watched = formatDateForInput(data.date_watched);
+      }
+      setFormData(data);
     } catch (err) {
       console.error('Erro ao carregar:', err);
       setError('Erro ao carregar dados.');
@@ -119,7 +136,8 @@ function FormPage() {
         year: details.year || result.Year,
         director: details.director || '',
         actors: details.actors || '',
-        runtime: details.runtime || ''
+        runtime: details.runtime || '',
+        country: details.country || ''
       }));
 
       setSearchResults([]);
@@ -430,6 +448,30 @@ function FormPage() {
                 value={formData.runtime}
                 onChange={handleChange}
                 placeholder="Ex: 120 min"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>País de Origem</label>
+              <input
+                type="text"
+                name="country"
+                value={formData.country}
+                onChange={handleChange}
+                placeholder="Ex: USA, UK"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Ano</label>
+              <input
+                type="text"
+                name="year"
+                value={formData.year}
+                onChange={handleChange}
+                placeholder="Ex: 2024"
               />
             </div>
           </div>

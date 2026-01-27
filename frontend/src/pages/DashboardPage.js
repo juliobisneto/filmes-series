@@ -117,6 +117,23 @@ function DashboardPage() {
       }, 0);
     const totalHours = Math.floor(totalMinutes / 60);
 
+    // Por país (separar países compostos como "USA, UK")
+    const byCountry = {};
+    mediaData.forEach(m => {
+      if (m.country) {
+        const countries = m.country.split(',').map(c => c.trim());
+        countries.forEach(country => {
+          if (country) {
+            byCountry[country] = (byCountry[country] || 0) + 1;
+          }
+        });
+      }
+    });
+    const countryData = Object.entries(byCountry)
+      .map(([country, count]) => ({ label: country, value: count }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 10);
+
     setStats({
       totalItems,
       totalMovies,
@@ -130,7 +147,8 @@ function DashboardPage() {
       genreData,
       ratingData,
       statusData,
-      typeData
+      typeData,
+      countryData
     });
   };
 
@@ -229,6 +247,12 @@ function DashboardPage() {
           data={stats.genreData}
           title="🎭 Top Gêneros"
           color="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
+        />
+        
+        <ChartBar 
+          data={stats.countryData}
+          title="🌍 Top 10 Países"
+          color="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"
         />
         
         <ChartBar 

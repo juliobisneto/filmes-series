@@ -173,7 +173,8 @@ router.get('/title/:title', checkApiKey, async (req, res) => {
       year: response.data.Year,
       director: response.data.Director !== 'N/A' ? response.data.Director : null,
       actors: response.data.Actors !== 'N/A' ? response.data.Actors : null,
-      runtime: response.data.Runtime !== 'N/A' ? response.data.Runtime : null
+      runtime: response.data.Runtime !== 'N/A' ? response.data.Runtime : null,
+      country: response.data.Country !== 'N/A' ? response.data.Country : null
     };
 
     res.json(formattedData);
