@@ -57,6 +57,8 @@ function ProfilePage() {
       setError(null);
       await profileService.update(profile);
       setSuccess(true);
+      // Rolar para o topo da página após salvar
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       console.error('Erro ao salvar perfil:', err);
