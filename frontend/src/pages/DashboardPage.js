@@ -134,6 +134,21 @@ function DashboardPage() {
       .sort((a, b) => b.value - a.value)
       .slice(0, 10);
 
+    // Por ano assistido (baseado em date_watched)
+    const byWatchedYear = {};
+    mediaData.forEach(m => {
+      if (m.date_watched) {
+        const watchedDate = new Date(m.date_watched);
+        const watchedYear = watchedDate.getFullYear();
+        if (!isNaN(watchedYear)) {
+          byWatchedYear[watchedYear] = (byWatchedYear[watchedYear] || 0) + 1;
+        }
+      }
+    });
+    const watchedYearData = Object.entries(byWatchedYear)
+      .map(([year, count]) => ({ label: year, value: count }))
+      .sort((a, b) => b.label.localeCompare(a.label)); // Ordenar do ano mais recente para o mais antigo
+
     setStats({
       totalItems,
       totalMovies,
@@ -148,7 +163,8 @@ function DashboardPage() {
       ratingData,
       statusData,
       typeData,
-      countryData
+      countryData,
+      watchedYearData
     });
   };
 
@@ -260,6 +276,14 @@ function DashboardPage() {
           title="⭐ Distribuição por Avaliação"
           color="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
         />
+
+        {stats.watchedYearData && stats.watchedYearData.length > 0 && (
+          <ChartBar 
+            data={stats.watchedYearData}
+            title="📆 Filmes Assistidos por Ano"
+            color="linear-gradient(135deg, #fa709a 0%, #fee140 100%)"
+          />
+        )}
       </div>
     </div>
   );
