@@ -40,6 +40,8 @@ function PersonPage() {
   }, [name]);
 
   useEffect(() => {
+    // Rolar para o topo da página ao carregar
+    window.scrollTo(0, 0);
     if (name) {
       searchPerson();
     }
@@ -177,7 +179,11 @@ function PersonPage() {
             {activeTab === 'actor' && movieCredits.as_actor && (
               <div className="movies-grid">
                 {movieCredits.as_actor.map((movie) => (
-                  <div key={movie.tmdb_id} className="movie-card">
+                  <div 
+                    key={movie.tmdb_id} 
+                    className="movie-card clickable"
+                    onClick={() => navigate(`/preview/${movie.tmdb_id}`)}
+                  >
                     <div className="movie-poster">
                       {movie.poster ? (
                         <img src={movie.poster} alt={movie.title_pt || movie.title} />
@@ -206,7 +212,11 @@ function PersonPage() {
             {activeTab === 'director' && movieCredits.as_director && (
               <div className="movies-grid">
                 {movieCredits.as_director.map((movie) => (
-                  <div key={movie.tmdb_id} className="movie-card">
+                  <div 
+                    key={movie.tmdb_id} 
+                    className="movie-card clickable"
+                    onClick={() => navigate(`/preview/${movie.tmdb_id}`)}
+                  >
                     <div className="movie-poster">
                       {movie.poster ? (
                         <img src={movie.poster} alt={movie.title_pt || movie.title} />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { mediaService, omdbService } from '../services/api';
 import tmdbService from '../services/tmdbService';
 import { Loading, ErrorMessage } from '../components/Loading';
@@ -7,6 +7,7 @@ import './FormPage.css';
 
 function FormPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams();
   const isEdit = Boolean(id);
   const searchInputRef = useRef(null);
@@ -74,12 +75,25 @@ function FormPage() {
     if (isEdit) {
       loadMedia();
     } else {
-      // Dar foco no campo de busca quando estiver adicionando novo filme
-      if (searchInputRef.current) {
-        searchInputRef.current.focus();
+      // Verificar se há dados pré-preenchidos vindos do PreviewPage
+      if (location.state?.prefilledData) {
+        const prefilled = location.state.prefilledData;
+        setFormData(prev => ({
+          ...prev,
+          ...prefilled,
+          // Formatar data se vier preenchida
+          date_watched: prefilled.date_watched ? formatDateForInput(prefilled.date_watched) : prev.date_watched
+        }));
+        // Limpar o state para não interferir em futuras navegações
+        window.history.replaceState({}, document.title);
+      } else {
+        // Dar foco no campo de busca quando estiver adicionando novo filme
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+        }
       }
     }
-  }, [isEdit, loadMedia]);
+  }, [isEdit, loadMedia, location.state]);
 
   const handleSearchIMDB = async () => {
     if (!searchQuery.trim()) return;

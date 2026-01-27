@@ -8,6 +8,7 @@ import FormPage from './pages/FormPage';
 import DetailsPage from './pages/DetailsPage';
 import DashboardPage from './pages/DashboardPage';
 import PersonPage from './pages/PersonPage';
+import PreviewPage from './pages/PreviewPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
@@ -58,6 +59,11 @@ function App() {
             <Route path="/person/:name" element={
               <PrivateRoute>
                 <PersonPage />
+              </PrivateRoute>
+            } />
+            <Route path="/preview/:tmdbId" element={
+              <PrivateRoute>
+                <PreviewPage />
               </PrivateRoute>
             } />
             

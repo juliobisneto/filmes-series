@@ -26,6 +26,8 @@ function DetailsPage() {
   }, [id]);
 
   useEffect(() => {
+    // Rolar para o topo da página ao carregar
+    window.scrollTo(0, 0);
     loadMedia();
   }, [loadMedia]);
 
