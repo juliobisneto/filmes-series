@@ -1,0 +1,76 @@
+
+🌍 Atualizando países de todos os filmes/séries...
+
+🐘 Usando PostgreSQL (Produção)
+📊 Total de filmes/séries: 59
+
+[1/59] ⏭️  Dept. Q - já tem país: United Kingdom
+[2/59] ⏭️  Amadeus - já tem país: United States, France
+[3/59] ⏭️  The Better Sister - já tem país: United States
+[4/59] ⏭️  From - já tem país: United States
+[5/59] ⏭️  Impuros - já tem país: Brazil
+[6/59] ⏭️  Sentimental Value - já tem país: Norway, Germany, Denmark, France, Sweden, United Kingdom, Turkey
+[7/59] ⏭️  Sinners - já tem país: United States, Australia, Canada
+[8/59] ⏭️  It Was Just an Accident - já tem país: Iran
+[9/59] ⏭️  The Rip - já tem país: United States
+[10/59] ⏭️  The Great Flood - já tem país: South Korea
+[11/59] ⏭️  Steal - já tem país: United States
+[12/59] ⏭️  Unseen - já tem país: South Africa
+[13/59] ⏭️  Back to the Future - já tem país: United States
+[14/59] ⏭️  Back to the Future Part II - já tem país: United States
+[15/59] ⏭️  Back to the Future Part III - já tem país: United States
+[16/59] ⏭️  The Lord of the Rings: The Two Towers - já tem país: New Zealand, United States
+[17/59] ⏭️  The Lord of the Rings: The Return of the King - já tem país: New Zealand, United States
+[18/59] ⏭️  Toy Story 3 - já tem país: United States
+[19/59] ⏭️  Run Away - já tem país: United Kingdom
+[20/59] ⏭️  Game of Thrones - já tem país: United States, United Kingdom
+[21/59] ⏭️  The Godfather Part II - já tem país: United States
+[22/59] ⏭️  The Godfather Part III - já tem país: United States
+[23/59] ⏭️  Star Wars: Episode IV - A New Hope - já tem país: United States
+[24/59] ⏭️  Star Wars: Episode V - The Empire Strikes Back - já tem país: United States
+[25/59] ⏭️  Star Wars: Episode VI - Return of the Jedi - já tem país: United States
+[26/59] ⏭️  The Shawshank Redemption - já tem país: United States
+[27/59] ⏭️  The Lion King - já tem país: United States
+[28/59] ⏭️  Toy Story - já tem país: United States
+[29/59] ⏭️  Toy Story 2 - já tem país: United States
+[30/59] ⏭️  The Secret Agent - já tem país: Brazil, France, Netherlands, Germany
+[31/59] ⏭️  This Is Us - já tem país: United States
+[32/59] ⏭️  The Therapy - já tem país: Germany
+[33/59] ⏭️  Dogville - já tem país: Denmark, Netherlands, Sweden, Germany, United Kingdom, France, Finland, Norway, Italy
+[34/59] ⏭️  The Devil's Hour - já tem país: United Kingdom
+[35/59] ⏭️  The Handmaid's Tale - já tem país: United States
+[36/59] ⏭️  Elite Squad 2: The Enemy Within - já tem país: Brazil
+[37/59] ⏭️  Central Station - já tem país: Brazil, France
+[38/59] ⏭️  A Clockwork Orange - já tem país: United Kingdom, United States
+[39/59] ⏭️  What's Eating Gilbert Grape - já tem país: United States
+[40/59] ⏭️  Kalifornia - já tem país: United States
+[41/59] ⏭️  Titanic - já tem país: United States
+[42/59] ⏭️  I'm Still Here - já tem país: Brazil, France
+[43/59] ⏭️  His & Hers - já tem país: United States
+[44/59] ⏭️  Parasite - já tem país: South Korea
+[45/59] ⏭️  Forrest Gump - já tem país: United States
+[46/59] ⏭️  All Her Fault - já tem país: United States, Australia
+[47/59] ⏭️  Magnolia - já tem país: United States
+[48/59] ⏭️  Sneaky Pete - já tem país: United States
+[49/59] ⏭️  Task - já tem país: United States
+[50/59] ⏭️  The Lord of the Rings: The Fellowship of the Ring - já tem país: New Zealand, United States, United Kingdom
+[51/59] ⏭️  The Godfather - já tem país: United States
+[52/59] ⏭️  Being John Malkovich - já tem país: United States
+[53/59] ⏭️  Elite Squad - já tem país: Brazil, Argentina
+[54/59] ⏭️  Oldboy - já tem país: South Korea
+[55/59] ⏭️  The Night Manager - já tem país: United Kingdom, United States
+[56/59] ⏭️  Breaking Bad - já tem país: United States
+[57/59] 🔍 Buscando Thank You for Smoking por IMDB ID...
+[57/59] ✅ Thank You for Smoking → United States
+[58/59] ⏭️  Gone Girl - já tem país: United States
+[59/59] ⏭️  The Sinner - já tem país: United States
+
+╔════════════════════════════════════════╗
+║  📊 ATUALIZAÇÃO CONCLUÍDA!            ║
+╠════════════════════════════════════════╣
+║  ✅ Atualizados:       1              ║
+║  ⏭️  Já tinham país:  58              ║
+║  ⚠️  Não encontrado:   0              ║
+║  ❌ Erros:             0              ║
+╚════════════════════════════════════════╝
+

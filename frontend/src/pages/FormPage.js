@@ -180,11 +180,12 @@ function FormPage() {
 
       if (isEdit) {
         await mediaService.update(id, formData);
+        navigate('/');
       } else {
-        await mediaService.create(formData);
+        const response = await mediaService.create(formData);
+        const newMediaId = response.data.id;
+        navigate(`/details/${newMediaId}`);
       }
-
-      navigate('/');
     } catch (err) {
       console.error('Erro ao salvar:', err);
       setError(err.response?.data?.error || 'Erro ao salvar.');
