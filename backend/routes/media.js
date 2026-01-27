@@ -130,6 +130,69 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Título e tipo são obrigatórios' });
     }
 
+    // Verificação de duplicatas - 3 níveis
+    let existingMedia = null;
+
+    // 1. Verificar por IMDB ID (mais confiável)
+    if (imdb_id) {
+      existingMedia = await db.get(
+        'SELECT id, title, year FROM media WHERE user_id = ? AND imdb_id = ?',
+        [req.userId, imdb_id]
+      );
+      
+      if (existingMedia) {
+        return res.status(409).json({ 
+          error: 'Este filme/série já está na sua biblioteca',
+          duplicate: {
+            id: existingMedia.id,
+            title: existingMedia.title,
+            year: existingMedia.year,
+            matchedBy: 'imdb_id'
+          }
+        });
+      }
+    }
+
+    // 2. Verificar por Título + Ano
+    if (year) {
+      existingMedia = await db.get(
+        'SELECT id, title, year FROM media WHERE user_id = ? AND LOWER(title) = LOWER(?) AND year = ?',
+        [req.userId, title, year]
+      );
+      
+      if (existingMedia) {
+        return res.status(409).json({ 
+          error: 'Este filme/série já está na sua biblioteca',
+          duplicate: {
+            id: existingMedia.id,
+            title: existingMedia.title,
+            year: existingMedia.year,
+            matchedBy: 'title_and_year'
+          }
+        });
+      }
+    }
+
+    // 3. Verificar por Título exato (case-insensitive)
+    existingMedia = await db.get(
+      'SELECT id, title, year FROM media WHERE user_id = ? AND LOWER(title) = LOWER(?)',
+      [req.userId, title]
+    );
+    
+    if (existingMedia) {
+      return res.status(409).json({ 
+        error: 'Um filme/série com este título já está na sua biblioteca',
+        duplicate: {
+          id: existingMedia.id,
+          title: existingMedia.title,
+          year: existingMedia.year,
+          matchedBy: 'title',
+          warning: 'Se for um filme diferente com o mesmo título, considere adicionar o ano para diferenciar'
+        }
+      });
+    }
+
+    // Se não encontrou duplicata, prosseguir com o cadastro
     const sql = `
       INSERT INTO media (
         user_id, title, type, genre, status, rating, notes, date_watched,

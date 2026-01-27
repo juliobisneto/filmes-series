@@ -263,7 +263,29 @@ function FormPage() {
       }
     } catch (err) {
       console.error('Erro ao salvar:', err);
-      setError(err.response?.data?.error || 'Erro ao salvar.');
+      
+      // Tratamento específico para duplicatas (409 Conflict)
+      if (err.response?.status === 409) {
+        const duplicate = err.response.data.duplicate;
+        
+        if (duplicate) {
+          const confirmMessage = `Este filme já está na sua biblioteca:
+
+📽️ ${duplicate.title}${duplicate.year ? ` (${duplicate.year})` : ''}
+
+Deseja visualizar o filme cadastrado?`;
+          
+          if (window.confirm(confirmMessage)) {
+            navigate(`/details/${duplicate.id}`);
+          } else {
+            setError(err.response.data.error || 'Este filme já está na sua biblioteca');
+          }
+        } else {
+          setError(err.response.data.error || 'Este filme já está na sua biblioteca');
+        }
+      } else {
+        setError(err.response?.data?.error || 'Erro ao salvar.');
+      }
     } finally {
       setLoading(false);
     }
