@@ -5,6 +5,7 @@ const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const mediaRoutes = require('./routes/media');
 const omdbRoutes = require('./routes/omdb');
+const tmdbRoutes = require('./routes/tmdb');
 const backupRoutes = require('./routes/backup');
 
 const app = express();
@@ -27,6 +28,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/omdb', omdbRoutes);
+app.use('/api/tmdb', tmdbRoutes);
 app.use('/api/backup', backupRoutes);
 
 // Rota de health check
@@ -49,6 +51,7 @@ app.get('/', (req, res) => {
       profile: '/api/profile',
       media: '/api/media',
       omdb: '/api/omdb',
+      tmdb: '/api/tmdb (NOVO - busca em português + atores/diretores)',
       backup: '/api/backup',
       health: '/api/health'
     }
@@ -101,10 +104,13 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`   - GET    /api/media`);
   console.log(`   - POST   /api/media`);
   console.log(`   - GET    /api/omdb/search?title=nome`);
+  console.log(`   - GET    /api/tmdb/search/movie?query=titulo`);
+  console.log(`   - GET    /api/tmdb/search/person?query=nome`);
+  console.log(`   - GET    /api/tmdb/search/hybrid?query=titulo`);
   console.log(`   - POST   /api/backup/create (criar backup)`);
   console.log(`   - GET    /api/backup/list (listar backups)`);
   console.log(`   - POST   /api/backup/restore (restaurar)`);
-  console.log(`\n⚠️  Configure JWT_SECRET no arquivo .env\n`);
+  console.log(`\n⚠️  Configure JWT_SECRET e TMDB_API_KEY no arquivo .env\n`);
 });
 
 // Tratamento de encerramento gracioso

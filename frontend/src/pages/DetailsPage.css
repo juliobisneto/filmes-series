@@ -239,6 +239,29 @@
   transform: translateY(-2px);
 }
 
+/* Links de pessoas (atores/diretores) */
+.person-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.person-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 2px 4px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.person-link:hover {
+  background: linear-gradient(135deg, rgba(255, 0, 150, 0.1), rgba(0, 204, 255, 0.1));
+  text-decoration: underline;
+  transform: translateY(-1px);
+}
+
 /* Responsividade */
 @media (max-width: 968px) {
   .details-hero {

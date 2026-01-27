@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mediaService, omdbService } from '../services/api';
+import tmdbService from '../services/tmdbService';
 import { Loading, ErrorMessage } from '../components/Loading';
 import './FormPage.css';
 
@@ -15,6 +16,7 @@ function FormPage() {
   const [searching, setSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchSource, setSearchSource] = useState('tmdb'); // 'tmdb' ou 'imdb'
   const [searchFilters, setSearchFilters] = useState({
     year: '',
     type: ''
@@ -86,27 +88,55 @@ function FormPage() {
       setSearching(true);
       setError(null);
       
-      // Montar parâmetros de busca
-      const searchParams = { title: searchQuery };
-      if (searchFilters.year) {
-        searchParams.year = searchFilters.year;
-      }
-      if (searchFilters.type) {
-        searchParams.type = searchFilters.type;
-      }
-      
-      const response = await omdbService.search(searchParams);
-      const results = response.data.results || [];
-      
-      // Sempre atualizar os resultados (limpa se vazio)
-      setSearchResults(results);
-      
-      if (results.length === 0) {
-        setError('Nenhum resultado encontrado no IMDB com esses filtros.');
+      if (searchSource === 'tmdb') {
+        // Busca no TMDB (aceita português!)
+        const response = await tmdbService.searchHybrid(searchQuery, 'pt-BR');
+        const results = response.data || [];
+        
+        // Formatar resultados do TMDB para o formato esperado
+        const formattedResults = results.map(movie => ({
+          imdbID: movie.imdb_id || `tmdb_${movie.tmdb_id}`,
+          tmdb_id: movie.tmdb_id,
+          Title: movie.title_pt || movie.title,
+          OriginalTitle: movie.original_title,
+          Year: movie.year,
+          Type: movie.type || 'movie',
+          Poster: movie.poster || 'N/A',
+          Plot: movie.plot,
+          source: 'tmdb'
+        }));
+        
+        setSearchResults(formattedResults);
+        
+        if (formattedResults.length === 0) {
+          setError('Nenhum resultado encontrado no TMDB.');
+        }
+      } else {
+        // Busca no IMDB (original - só aceita inglês)
+        const searchParams = { title: searchQuery };
+        if (searchFilters.year) {
+          searchParams.year = searchFilters.year;
+        }
+        if (searchFilters.type) {
+          searchParams.type = searchFilters.type;
+        }
+        
+        const response = await omdbService.search(searchParams);
+        const results = response.data.results || [];
+        
+        // Adicionar source='imdb' aos resultados
+        const formattedResults = results.map(r => ({ ...r, source: 'imdb' }));
+        
+        // Sempre atualizar os resultados (limpa se vazio)
+        setSearchResults(formattedResults);
+        
+        if (results.length === 0) {
+          setError('Nenhum resultado encontrado no IMDB com esses filtros.');
+        }
       }
     } catch (err) {
-      console.error('Erro ao buscar no IMDB:', err);
-      setError(err.response?.data?.error || 'Erro ao buscar no IMDB. Verifique se a chave da API está configurada.');
+      console.error(`Erro ao buscar no ${searchSource.toUpperCase()}:`, err);
+      setError(err.response?.data?.error || `Erro ao buscar no ${searchSource.toUpperCase()}.`);
       // Limpar resultados em caso de erro também
       setSearchResults([]);
     } finally {
@@ -119,33 +149,58 @@ function FormPage() {
       setLoading(true);
       setError(null);
       
-      // Buscar detalhes completos
-      const response = await omdbService.getByImdbId(result.imdbID);
-      const details = response.data;
+      let details;
+      
+      if (result.source === 'tmdb') {
+        // Se veio do TMDB, buscar detalhes completos no TMDB
+        const response = await tmdbService.getMovieDetails(result.tmdb_id, 'pt-BR');
+        details = response.data;
+        
+        // Preencher formulário com dados do TMDB
+        setFormData(prev => ({
+          ...prev,
+          title: details.title_pt || details.title,
+          type: details.type || 'movie',
+          genre: details.genres || '',
+          imdb_id: details.imdb_id || '',
+          imdb_rating: details.vote_average ? details.vote_average.toString() : '',
+          poster_url: details.poster || '',
+          plot: details.plot || '',
+          year: details.year || '',
+          director: details.director || '',
+          actors: details.actors || '',
+          runtime: details.runtime || '',
+          country: details.country || ''
+        }));
+      } else {
+        // Se veio do IMDB, buscar detalhes completos no IMDB
+        const response = await omdbService.getByImdbId(result.imdbID);
+        details = response.data;
 
-      // Preencher formulário com dados do IMDB
-      setFormData(prev => ({
-        ...prev,
-        title: details.title || result.Title,
-        type: details.type || (result.Type === 'movie' ? 'movie' : 'series'),
-        genre: details.genre || '',
-        imdb_id: details.imdb_id || result.imdbID,
-        imdb_rating: details.imdb_rating || '',
-        poster_url: details.poster_url || (result.Poster !== 'N/A' ? result.Poster : ''),
-        plot: details.plot || '',
-        year: details.year || result.Year,
-        director: details.director || '',
-        actors: details.actors || '',
-        runtime: details.runtime || '',
-        country: details.country || ''
-      }));
+        // Preencher formulário com dados do IMDB
+        setFormData(prev => ({
+          ...prev,
+          title: details.title || result.Title,
+          type: details.type || (result.Type === 'movie' ? 'movie' : 'series'),
+          genre: details.genre || '',
+          imdb_id: details.imdb_id || result.imdbID,
+          imdb_rating: details.imdb_rating || '',
+          poster_url: details.poster_url || (result.Poster !== 'N/A' ? result.Poster : ''),
+          plot: details.plot || '',
+          year: details.year || result.Year,
+          director: details.director || '',
+          actors: details.actors || '',
+          runtime: details.runtime || '',
+          country: details.country || ''
+        }));
+      }
 
       setSearchResults([]);
       setSearchQuery('');
       setSearchFilters({ year: '', type: '' });
     } catch (err) {
       console.error('Erro ao carregar detalhes:', err);
-      setError('Erro ao carregar detalhes do IMDB.');
+      setError(`Erro ao carregar detalhes do ${result.source === 'tmdb' ? 'TMDB' : 'IMDB'}.`);
     } finally {
       setLoading(false);
     }
@@ -233,15 +288,47 @@ function FormPage() {
         {!isEdit && (
           <div className="imdb-search-section">
             <h2>
-              <span>🔍</span> Buscar no IMDB
+              <span>🔍</span> Buscar Filme/Série
             </h2>
+            
+            {/* Seletor de fonte de busca */}
+            <div className="search-source-selector">
+              <button
+                type="button"
+                className={`source-btn ${searchSource === 'tmdb' ? 'active' : ''}`}
+                onClick={() => setSearchSource('tmdb')}
+              >
+                <span className="source-icon">🌐</span>
+                <span className="source-name">TMDB</span>
+                <span className="source-desc">(Aceita português)</span>
+              </button>
+              <button
+                type="button"
+                className={`source-btn ${searchSource === 'imdb' ? 'active' : ''}`}
+                onClick={() => setSearchSource('imdb')}
+              >
+                <span className="source-icon">🎬</span>
+                <span className="source-name">IMDB</span>
+                <span className="source-desc">(Só inglês)</span>
+              </button>
+            </div>
             
             <div className="search-tip">
               <span className="tip-icon">💡</span>
               <span className="tip-text">
-                <strong>Dica:</strong> Use o título original em inglês para melhores resultados. 
-                <br />
-                <em>Ex: "Back to the Future" ao invés de "De Volta Para o Futuro"</em>
+                {searchSource === 'tmdb' ? (
+                  <>
+                    <strong>TMDB:</strong> Busque em português! 
+                    <br />
+                    <em>Ex: "De Volta Para o Futuro" funciona perfeitamente</em>
+                  </>
+                ) : (
+                  <>
+                    <strong>IMDB:</strong> Use o título original em inglês. 
+                    <br />
+                    <em>Ex: "Back to the Future" ao invés de "De Volta Para o Futuro"</em>
+                  </>
+                )}
               </span>
             </div>
 
@@ -252,7 +339,10 @@ function FormPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearchIMDB()}
-                placeholder="Digite o título em inglês (ex: Back to the Future)..."
+                placeholder={searchSource === 'tmdb' 
+                  ? "Digite o título em português ou inglês..." 
+                  : "Digite o título em inglês (ex: Back to the Future)..."
+                }
               />
               <button
                 className="btn-search-imdb"
@@ -263,41 +353,43 @@ function FormPage() {
               </button>
             </div>
 
-            <div className="search-filters">
-              <div className="filter-group">
-                <label htmlFor="search-year">Ano:</label>
-                <input
-                  id="search-year"
-                  type="number"
-                  value={searchFilters.year}
-                  onChange={(e) => setSearchFilters(prev => ({ ...prev, year: e.target.value }))}
-                  placeholder="Ex: 2024"
-                  min="1900"
-                  max={new Date().getFullYear() + 5}
-                />
+            {searchSource === 'imdb' && (
+              <div className="search-filters">
+                <div className="filter-group">
+                  <label htmlFor="search-year">Ano:</label>
+                  <input
+                    id="search-year"
+                    type="number"
+                    value={searchFilters.year}
+                    onChange={(e) => setSearchFilters(prev => ({ ...prev, year: e.target.value }))}
+                    placeholder="Ex: 2024"
+                    min="1900"
+                    max={new Date().getFullYear() + 5}
+                  />
+                </div>
+                <div className="filter-group">
+                  <label htmlFor="search-type">Tipo:</label>
+                  <select
+                    id="search-type"
+                    value={searchFilters.type}
+                    onChange={(e) => setSearchFilters(prev => ({ ...prev, type: e.target.value }))}
+                  >
+                    <option value="">Todos</option>
+                    <option value="movie">Filme</option>
+                    <option value="series">Série</option>
+                  </select>
+                </div>
+                {(searchFilters.year || searchFilters.type) && (
+                  <button
+                    className="btn-clear-filters"
+                    onClick={() => setSearchFilters({ year: '', type: '' })}
+                    title="Limpar filtros"
+                  >
+                    ✕ Limpar
+                  </button>
+                )}
               </div>
-              <div className="filter-group">
-                <label htmlFor="search-type">Tipo:</label>
-                <select
-                  id="search-type"
-                  value={searchFilters.type}
-                  onChange={(e) => setSearchFilters(prev => ({ ...prev, type: e.target.value }))}
-                >
-                  <option value="">Todos</option>
-                  <option value="movie">Filme</option>
-                  <option value="series">Série</option>
-                </select>
-              </div>
-              {(searchFilters.year || searchFilters.type) && (
-                <button
-                  className="btn-clear-filters"
-                  onClick={() => setSearchFilters({ year: '', type: '' })}
-                  title="Limpar filtros"
-                >
-                  ✕ Limpar
-                </button>
-              )}
-            </div>
+            )}
 
             {searchResults.length > 0 && (
               <div className="search-results">
@@ -315,11 +407,20 @@ function FormPage() {
                       )}
                     </div>
                     <div className="search-result-info">
-                      <div className="search-result-title">{result.Title}</div>
+                      <div className="search-result-title">
+                        {result.Title}
+                        {result.OriginalTitle && result.OriginalTitle !== result.Title && (
+                          <span className="original-title"> ({result.OriginalTitle})</span>
+                        )}
+                      </div>
                       <div className="search-result-details">
                         <span>{result.Year}</span>
                         <span>•</span>
                         <span>{result.Type === 'movie' ? 'Filme' : 'Série'}</span>
+                        <span>•</span>
+                        <span className={`source-badge ${result.source}`}>
+                          {result.source === 'tmdb' ? 'TMDB' : 'IMDB'}
+                        </span>
                       </div>
                     </div>
                   </div>

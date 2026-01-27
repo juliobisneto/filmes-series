@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { mediaService } from '../services/api';
 import { Loading, ErrorMessage } from '../components/Loading';
 import './DetailsPage.css';
@@ -74,6 +74,23 @@ function DetailsPage() {
     if (!dateString) return null;
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR');
+  };
+
+  // Função para renderizar nomes com links
+  const renderPersonLinks = (names) => {
+    if (!names) return null;
+    
+    // Separar por vírgula
+    const nameList = names.split(',').map(name => name.trim());
+    
+    return nameList.map((name, index) => (
+      <span key={index}>
+        {index > 0 && ', '}
+        <Link to={`/person/${encodeURIComponent(name)}`} className="person-link">
+          {name}
+        </Link>
+      </span>
+    ));
   };
 
   if (loading) {
@@ -181,13 +198,17 @@ function DetailsPage() {
             {media.director && (
               <div className="info-item">
                 <span className="info-label">Diretor</span>
-                <span className="info-value">{media.director}</span>
+                <span className="info-value person-links">
+                  {renderPersonLinks(media.director)}
+                </span>
               </div>
             )}
             {media.actors && (
               <div className="info-item">
                 <span className="info-label">Elenco</span>
-                <span className="info-value">{media.actors}</span>
+                <span className="info-value person-links">
+                  {renderPersonLinks(media.actors)}
+                </span>
               </div>
             )}
             {media.date_watched && (
