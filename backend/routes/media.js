@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
     `;
 
     const media = await db.all(sql, params);
-    res.json(media);
+    res.json({ success: true, data: media });
   } catch (error) {
     console.error('Erro ao buscar media:', error);
     res.status(500).json({ error: 'Erro ao buscar filmes/séries' });
@@ -65,7 +65,7 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Filme/Série não encontrado' });
     }
 
-    res.json(media);
+    res.json({ success: true, data: media });
   } catch (error) {
     console.error('Erro ao buscar media:', error);
     res.status(500).json({ error: 'Erro ao buscar filme/série' });
@@ -160,7 +160,7 @@ router.post('/', async (req, res) => {
     const result = await db.run(sql, params);
     const newMedia = await db.get('SELECT * FROM media WHERE id = ?', [result.id]);
     
-    res.status(201).json(newMedia);
+    res.status(201).json({ success: true, data: newMedia });
   } catch (error) {
     console.error('Erro ao cadastrar media:', error);
     res.status(500).json({ error: 'Erro ao cadastrar filme/série' });
@@ -245,7 +245,7 @@ router.put('/:id', async (req, res) => {
     await db.run(sql, params);
     const updatedMedia = await db.get('SELECT * FROM media WHERE id = ?', [id]);
     
-    res.json(updatedMedia);
+    res.json({ success: true, data: updatedMedia });
   } catch (error) {
     console.error('Erro ao atualizar media:', error);
     res.status(500).json({ error: 'Erro ao atualizar filme/série' });

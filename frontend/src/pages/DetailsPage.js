@@ -16,7 +16,7 @@ function DetailsPage() {
       setLoading(true);
       setError(null);
       const response = await mediaService.getById(id);
-      setMedia(response.data);
+      setMedia(response.data.data); // Ajustado para nova estrutura
     } catch (err) {
       console.error('Erro ao carregar:', err);
       setError('Erro ao carregar detalhes.');

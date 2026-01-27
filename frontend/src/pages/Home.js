@@ -20,8 +20,8 @@ function Home() {
       setLoading(true);
       setError(null);
       const response = await mediaService.getAll();
-      setMedia(response.data);
-      setFilteredMedia(response.data);
+      setMedia(response.data.data); // Ajustado para nova estrutura
+      setFilteredMedia(response.data.data);
     } catch (err) {
       console.error('Erro ao carregar media:', err);
       setError('Erro ao carregar filmes e séries. Verifique se o backend está rodando.');
@@ -38,7 +38,7 @@ function Home() {
       // Se houver busca por texto, usar o endpoint de busca
       if (filters.search) {
         const response = await mediaService.search(filters.search);
-        let results = response.data;
+        let results = response.data.data || response.data; // Compatibilidade
 
         // Aplicar filtros adicionais
         if (filters.status) {
@@ -62,7 +62,7 @@ function Home() {
         if (filters.genre) params.genre = filters.genre;
 
         const response = await mediaService.getAll(params);
-        setFilteredMedia(response.data);
+        setFilteredMedia(response.data.data); // Ajustado para nova estrutura
       }
     } catch (err) {
       console.error('Erro ao filtrar:', err);

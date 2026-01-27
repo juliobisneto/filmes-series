@@ -16,7 +16,7 @@ function DashboardPage() {
       setLoading(true);
       setError(null);
       const response = await mediaService.getAll();
-      const mediaData = response.data;
+      const mediaData = response.data.data; // Ajustado para nova estrutura
       calculateStats(mediaData);
     } catch (err) {
       console.error('Erro ao carregar dados:', err);

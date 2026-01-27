@@ -56,7 +56,7 @@ function FormPage() {
     try {
       setLoading(true);
       const response = await mediaService.getById(id);
-      const data = response.data;
+      const data = response.data.data; // Ajustado para nova estrutura
       // Formatar data antes de setar no estado
       if (data.date_watched) {
         data.date_watched = formatDateForInput(data.date_watched);
