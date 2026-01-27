@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import tmdbService from '../services/tmdbService';
 import mediaService from '../services/api';
@@ -15,13 +15,7 @@ function PreviewPage() {
   const [isInLibrary, setIsInLibrary] = useState(false);
   const [checkingLibrary, setCheckingLibrary] = useState(true);
 
-  useEffect(() => {
-    // Rolar para o topo da página ao carregar
-    window.scrollTo(0, 0);
-    loadMovieDetails();
-  }, [tmdbId]);
-
-  const loadMovieDetails = async () => {
+  const loadMovieDetails = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -38,7 +32,13 @@ function PreviewPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [tmdbId]);
+
+  useEffect(() => {
+    // Rolar para o topo da página ao carregar
+    window.scrollTo(0, 0);
+    loadMovieDetails();
+  }, [loadMovieDetails]);
 
   const checkIfInLibrary = async (movie) => {
     try {
