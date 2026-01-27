@@ -122,7 +122,8 @@ router.post('/', async (req, res) => {
       year,
       director,
       actors,
-      runtime
+      runtime,
+      country
     } = req.body;
 
     if (!title || !type) {
@@ -132,8 +133,8 @@ router.post('/', async (req, res) => {
     const sql = `
       INSERT INTO media (
         user_id, title, type, genre, status, rating, notes, date_watched,
-        imdb_id, imdb_rating, poster_url, plot, year, director, actors, runtime
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        imdb_id, imdb_rating, poster_url, plot, year, director, actors, runtime, country
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const params = [
@@ -152,7 +153,8 @@ router.post('/', async (req, res) => {
       year || null,
       director || null,
       actors || null,
-      runtime || null
+      runtime || null,
+      country || null
     ];
 
     const result = await db.run(sql, params);
@@ -184,7 +186,8 @@ router.put('/:id', async (req, res) => {
       year,
       director,
       actors,
-      runtime
+      runtime,
+      country
     } = req.body;
 
     // Verificar se o registro existe e pertence ao usuário
@@ -213,7 +216,8 @@ router.put('/:id', async (req, res) => {
         year = ?,
         director = ?,
         actors = ?,
-        runtime = ?
+        runtime = ?,
+        country = ?
       WHERE id = ? AND user_id = ?
     `;
 
@@ -233,6 +237,7 @@ router.put('/:id', async (req, res) => {
       director !== undefined ? director : existing.director,
       actors !== undefined ? actors : existing.actors,
       runtime !== undefined ? runtime : existing.runtime,
+      country !== undefined ? country : existing.country,
       id,
       req.userId
     ];
