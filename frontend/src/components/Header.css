@@ -54,6 +54,21 @@
   background-color: var(--primary-color);
 }
 
+.header-nav a.admin-link {
+  background: linear-gradient(135deg, rgba(255, 0, 150, 0.2), rgba(0, 204, 255, 0.2));
+  border: 1px solid var(--primary-color);
+  font-weight: 600;
+}
+
+.header-nav a.admin-link:hover {
+  background: linear-gradient(135deg, rgba(255, 0, 150, 0.3), rgba(0, 204, 255, 0.3));
+}
+
+.header-nav a.admin-link.active {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-color: var(--primary-color);
+}
+
 .user-avatar {
   display: inline-flex;
   align-items: center;

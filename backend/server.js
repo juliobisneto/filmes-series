@@ -7,6 +7,7 @@ const mediaRoutes = require('./routes/media');
 const omdbRoutes = require('./routes/omdb');
 const tmdbRoutes = require('./routes/tmdb');
 const backupRoutes = require('./routes/backup');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -30,6 +31,7 @@ app.use('/api/media', mediaRoutes);
 app.use('/api/omdb', omdbRoutes);
 app.use('/api/tmdb', tmdbRoutes);
 app.use('/api/backup', backupRoutes);
+app.use('/api/admin', adminRoutes); // Rota de administração (requer admin)
 
 // Rota de health check
 app.get('/api/health', (req, res) => {

@@ -30,6 +30,10 @@ function Header() {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  const isAdmin = () => {
+    return user?.email === 'julio.bisneto@gmail.com';
+  };
+
   // Não mostrar header nas páginas de login/registro
   if (!isAuthenticated) {
     return null;
@@ -57,6 +61,11 @@ function Header() {
           <Link to="/add" className={isActive('/add')} onClick={closeMenu}>
             Adicionar
           </Link>
+          {isAdmin() && (
+            <Link to="/admin" className={`${isActive('/admin')} admin-link`} onClick={closeMenu}>
+              🔐 Admin
+            </Link>
+          )}
           <Link to="/profile" className={isActive('/profile')} onClick={closeMenu}>
             <span className="user-avatar">{getInitials(user?.name)}</span>
             Perfil

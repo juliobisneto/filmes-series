@@ -9,6 +9,7 @@ import DetailsPage from './pages/DetailsPage';
 import DashboardPage from './pages/DashboardPage';
 import PersonPage from './pages/PersonPage';
 import PreviewPage from './pages/PreviewPage';
+import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
@@ -64,6 +65,11 @@ function App() {
             <Route path="/preview/:tmdbId" element={
               <PrivateRoute>
                 <PreviewPage />
+              </PrivateRoute>
+            } />
+            <Route path="/admin" element={
+              <PrivateRoute>
+                <AdminPage />
               </PrivateRoute>
             } />
             
