@@ -172,6 +172,12 @@ function DetailsPage() {
         <div className="details-section">
           <h2>ℹ️ Informações</h2>
           <div className="details-info-grid">
+            {media.country && (
+              <div className="info-item">
+                <span className="info-label">País de Origem</span>
+                <span className="info-value">{media.country}</span>
+              </div>
+            )}
             {media.director && (
               <div className="info-item">
                 <span className="info-label">Diretor</span>
@@ -182,12 +188,6 @@ function DetailsPage() {
               <div className="info-item">
                 <span className="info-label">Elenco</span>
                 <span className="info-value">{media.actors}</span>
-              </div>
-            )}
-            {media.date_added && (
-              <div className="info-item">
-                <span className="info-label">Data de Cadastro</span>
-                <span className="info-value">{formatDate(media.date_added)}</span>
               </div>
             )}
             {media.date_watched && (

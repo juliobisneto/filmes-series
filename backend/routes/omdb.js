@@ -5,6 +5,13 @@ const axios = require('axios');
 const OMDB_API_KEY = process.env.OMDB_API_KEY;
 const OMDB_BASE_URL = 'http://www.omdbapi.com/';
 
+// Função auxiliar para limpar o ano (remover hífens e caracteres extras)
+const cleanYear = (yearString) => {
+  if (!yearString) return null;
+  const match = yearString.match(/\d{4}/); // Extrai apenas os 4 dígitos do ano
+  return match ? match[0] : yearString;
+};
+
 // Middleware para verificar se a API key está configurada
 const checkApiKey = (req, res, next) => {
   if (!OMDB_API_KEY || OMDB_API_KEY === 'your_api_key_here') {
@@ -109,7 +116,7 @@ router.get('/:imdbId', checkApiKey, async (req, res) => {
       imdb_rating: response.data.imdbRating,
       poster_url: response.data.Poster !== 'N/A' ? response.data.Poster : null,
       plot: response.data.Plot !== 'N/A' ? response.data.Plot : null,
-      year: response.data.Year,
+      year: cleanYear(response.data.Year),
       director: response.data.Director !== 'N/A' ? response.data.Director : null,
       actors: response.data.Actors !== 'N/A' ? response.data.Actors : null,
       runtime: response.data.Runtime !== 'N/A' ? response.data.Runtime : null,
@@ -170,7 +177,7 @@ router.get('/title/:title', checkApiKey, async (req, res) => {
       imdb_rating: response.data.imdbRating,
       poster_url: response.data.Poster !== 'N/A' ? response.data.Poster : null,
       plot: response.data.Plot !== 'N/A' ? response.data.Plot : null,
-      year: response.data.Year,
+      year: cleanYear(response.data.Year),
       director: response.data.Director !== 'N/A' ? response.data.Director : null,
       actors: response.data.Actors !== 'N/A' ? response.data.Actors : null,
       runtime: response.data.Runtime !== 'N/A' ? response.data.Runtime : null,

@@ -465,13 +465,13 @@ function FormPage() {
             </div>
 
             <div className="form-group">
-              <label>Ano</label>
+              <label>Diretor</label>
               <input
                 type="text"
-                name="year"
-                value={formData.year}
+                name="director"
+                value={formData.director}
                 onChange={handleChange}
-                placeholder="Ex: 2024"
+                placeholder="Ex: Steven Spielberg"
               />
             </div>
           </div>
