@@ -238,7 +238,7 @@ function FormPage() {
         navigate('/');
       } else {
         const response = await mediaService.create(formData);
-        const newMediaId = response.data.id;
+        const newMediaId = response.data.data.id; // Corrigido para response.data.data.id
         navigate(`/details/${newMediaId}`);
       }
     } catch (err) {

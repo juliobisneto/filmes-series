@@ -97,7 +97,7 @@ router.get('/search/local', async (req, res) => {
     const searchTerm = `%${q}%`;
     const media = await db.all(sql, [req.userId, searchTerm, searchTerm, searchTerm]);
     
-    res.json(media);
+    res.json({ success: true, data: media });
   } catch (error) {
     console.error('Erro ao buscar media:', error);
     res.status(500).json({ error: 'Erro ao buscar filmes/séries' });
