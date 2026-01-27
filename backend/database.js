@@ -65,6 +65,7 @@ class Database {
           favorite_movies TEXT,
           favorite_directors TEXT,
           favorite_actors TEXT,
+          bio TEXT,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
       `);
