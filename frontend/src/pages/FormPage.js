@@ -238,7 +238,13 @@ function FormPage() {
         navigate('/');
       } else {
         const response = await mediaService.create(formData);
-        const newMediaId = response.data.data.id; // Corrigido para response.data.data.id
+        const newMediaId = response.data?.data?.id || response.data?.id;
+        
+        if (!newMediaId) {
+          setError('Erro: filme criado mas ID não retornado.');
+          return;
+        }
+        
         navigate(`/details/${newMediaId}`);
       }
     } catch (err) {

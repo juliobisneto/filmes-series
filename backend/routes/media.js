@@ -135,6 +135,7 @@ router.post('/', async (req, res) => {
         user_id, title, type, genre, status, rating, notes, date_watched,
         imdb_id, imdb_rating, poster_url, plot, year, director, actors, runtime, country
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      RETURNING *
     `;
 
     const params = [
@@ -158,7 +159,11 @@ router.post('/', async (req, res) => {
     ];
 
     const result = await db.run(sql, params);
-    const newMedia = await db.get('SELECT * FROM media WHERE id = ?', [result.id]);
+    const newMedia = result;
+    
+    if (!newMedia || !newMedia.id) {
+      return res.status(500).json({ error: 'Erro ao criar filme: ID não retornado' });
+    }
     
     res.status(201).json({ success: true, data: newMedia });
   } catch (error) {
