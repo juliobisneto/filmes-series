@@ -45,9 +45,9 @@ function MediaCard({ media, onDelete, readOnly = false, onAddToCollection }) {
       
       // Buscar filme no TMDB
       const searchQuery = year ? `${title} ${year}` : title;
-      const response = await tmdbService.default.searchMovies(searchQuery, 'pt-BR');
+      const response = await tmdbService.default.searchMovie(searchQuery, 'pt-BR');
       
-      if (response.data.results && response.data.results.length > 0) {
+      if (response.data && response.data.results && response.data.results.length > 0) {
         const firstResult = response.data.results[0];
         navigate(`/preview/${firstResult.id}`);
       } else {
