@@ -89,7 +89,8 @@ class Database {
           year VARCHAR(10),
           director VARCHAR(255),
           actors TEXT,
-          runtime VARCHAR(50)
+          runtime VARCHAR(50),
+          country VARCHAR(255)
         );
       `);
 
@@ -130,7 +131,7 @@ class Database {
         title TEXT NOT NULL,
         type TEXT NOT NULL CHECK(type IN ('movie', 'series')),
         genre TEXT,
-        status TEXT NOT NULL CHECK(status IN ('quero_ver', 'assistindo', 'ja_vi')) DEFAULT 'quero_ver',
+        status TEXT NOT NULL CHECK(status IN ('quero_ver', 'assistindo', 'rever', 'ja_vi')) DEFAULT 'quero_ver',
         rating INTEGER CHECK(rating >= 0 AND rating <= 5),
         notes TEXT,
         date_added DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -143,6 +144,7 @@ class Database {
         director TEXT,
         actors TEXT,
         runtime TEXT,
+        country TEXT,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       )
     `;

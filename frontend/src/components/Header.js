@@ -61,6 +61,9 @@ function Header() {
           <Link to="/add" className={isActive('/add')} onClick={closeMenu}>
             Adicionar
           </Link>
+          <Link to="/friends" className={isActive('/friends')} onClick={closeMenu}>
+            👥 Amigos
+          </Link>
           {isAdmin() && (
             <Link to="/admin" className={`${isActive('/admin')} admin-link`} onClick={closeMenu}>
               🔐 Admin

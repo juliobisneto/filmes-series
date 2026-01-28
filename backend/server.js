@@ -8,6 +8,7 @@ const omdbRoutes = require('./routes/omdb');
 const tmdbRoutes = require('./routes/tmdb');
 const backupRoutes = require('./routes/backup');
 const adminRoutes = require('./routes/admin');
+const friendsRoutes = require('./routes/friends');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -32,6 +33,7 @@ app.use('/api/omdb', omdbRoutes);
 app.use('/api/tmdb', tmdbRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/admin', adminRoutes); // Rota de administração (requer admin)
+app.use('/api/friends', friendsRoutes); // Rotas de amizades (requer autenticação)
 
 // Rota de health check
 app.get('/api/health', (req, res) => {

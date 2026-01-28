@@ -10,6 +10,7 @@ import DashboardPage from './pages/DashboardPage';
 import PersonPage from './pages/PersonPage';
 import PreviewPage from './pages/PreviewPage';
 import AdminPage from './pages/AdminPage';
+import FriendsPage from './pages/FriendsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
@@ -70,6 +71,11 @@ function App() {
             <Route path="/admin" element={
               <PrivateRoute>
                 <AdminPage />
+              </PrivateRoute>
+            } />
+            <Route path="/friends" element={
+              <PrivateRoute>
+                <FriendsPage />
               </PrivateRoute>
             } />
             
