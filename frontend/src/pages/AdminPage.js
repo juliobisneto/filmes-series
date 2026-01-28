@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { Loading, ErrorMessage } from '../components/Loading';
@@ -10,13 +10,7 @@ function AdminPage() {
   const [error, setError] = useState(null);
   const [stats, setStats] = useState(null);
 
-  useEffect(() => {
-    // Rolar para o topo
-    window.scrollTo(0, 0);
-    loadStats();
-  }, []);
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -35,7 +29,13 @@ function AdminPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]); // Added navigate to dependencies
+
+  useEffect(() => {
+    // Rolar para o topo
+    window.scrollTo(0, 0);
+    loadStats();
+  }, [loadStats]); // Added loadStats to dependencies
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
