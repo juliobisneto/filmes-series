@@ -36,35 +36,28 @@ function Home() {
       setLoading(true);
       setError(null);
 
-      // Se houver busca por texto, usar o endpoint de busca
-      if (filters.search) {
-        const response = await mediaService.search(filters.search);
-        let results = response.data.data || response.data; // Compatibilidade
+      // Filtrar localmente com base nos novos campos
+      let results = [...media];
 
-        // Aplicar filtros adicionais
-        if (filters.status) {
-          results = results.filter(item => item.status === filters.status);
-        }
-        if (filters.type) {
-          results = results.filter(item => item.type === filters.type);
-        }
-        if (filters.genre) {
-          results = results.filter(item => 
-            item.genre && item.genre.toLowerCase().includes(filters.genre.toLowerCase())
-          );
-        }
-
-        setFilteredMedia(results);
-      } else {
-        // Usar endpoint com filtros de query
-        const params = {};
-        if (filters.status) params.status = filters.status;
-        if (filters.type) params.type = filters.type;
-        if (filters.genre) params.genre = filters.genre;
-
-        const response = await mediaService.getAll(params);
-        setFilteredMedia(response.data.data); // Ajustado para nova estrutura
+      if (filters.title) {
+        results = results.filter(item => 
+          item.title && item.title.toLowerCase().includes(filters.title.toLowerCase())
+        );
       }
+
+      if (filters.director) {
+        results = results.filter(item => 
+          item.director && item.director.toLowerCase().includes(filters.director.toLowerCase())
+        );
+      }
+
+      if (filters.actors) {
+        results = results.filter(item => 
+          item.actors && item.actors.toLowerCase().includes(filters.actors.toLowerCase())
+        );
+      }
+
+      setFilteredMedia(results);
     } catch (err) {
       console.error('Erro ao filtrar:', err);
       setError('Erro ao filtrar resultados.');

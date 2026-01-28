@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import './Filters.css';
 
 function Filters({ onFilter, onClear }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [filters, setFilters] = useState({
-    search: '',
-    status: '',
-    type: '',
-    genre: ''
+    title: '',
+    director: '',
+    actors: ''
   });
 
   const handleChange = (e) => {
@@ -19,92 +19,106 @@ function Filters({ onFilter, onClear }) {
 
   const handleClear = () => {
     const clearedFilters = {
-      search: '',
-      status: '',
-      type: '',
-      genre: ''
+      title: '',
+      director: '',
+      actors: ''
     };
     setFilters(clearedFilters);
     onClear();
   };
 
-  // Aplicar filtro automaticamente quando digitar na busca
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+    if (isExpanded) {
+      // Ao colapsar, limpa os filtros
+      handleClear();
+    }
+  };
+
+  const hasActiveFilters = filters.title || filters.director || filters.actors;
+
+  // Aplicar filtro automaticamente quando digitar
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (filters.search || filters.status || filters.type || filters.genre) {
+      if (hasActiveFilters) {
         onFilter(filters);
       }
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [filters, onFilter]);
+  }, [filters, onFilter, hasActiveFilters]);
 
   return (
-    <div className="filters">
-      <h2 className="filters-title">
-        <span>🔍</span> Filtros
-      </h2>
+    <div className={`filters ${isExpanded ? 'expanded' : 'collapsed'}`}>
+      <button className="filters-toggle" onClick={toggleExpand}>
+        <span className="toggle-icon">{isExpanded ? '🔽' : '🔍'}</span>
+        <span className="toggle-text">
+          {isExpanded ? 'Ocultar busca' : 'Busca na sua biblioteca'}
+        </span>
+        {hasActiveFilters && !isExpanded && (
+          <span className="active-indicator">●</span>
+        )}
+      </button>
       
-      <div className="filters-grid">
-        <div className="filter-group">
-          <label htmlFor="search">Buscar</label>
-          <input
-            type="text"
-            id="search"
-            name="search"
-            value={filters.search}
-            onChange={handleChange}
-            placeholder="Digite o título..."
-          />
-        </div>
+      {isExpanded && (
+        <div className="filters-content">
+          <div className="filters-grid">
+            <div className="filter-group">
+              <label htmlFor="title">
+                <span className="label-icon">🎬</span>
+                Título
+              </label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                value={filters.title}
+                onChange={handleChange}
+                placeholder="Nome do filme ou série..."
+                autoFocus
+              />
+            </div>
 
-        <div className="filter-group">
-          <label htmlFor="status">Status</label>
-          <select
-            id="status"
-            name="status"
-            value={filters.status}
-            onChange={handleChange}
-          >
-            <option value="">Todos</option>
-            <option value="quero_ver">Quero Ver</option>
-            <option value="assistindo">Assistindo</option>
-            <option value="ja_vi">Já Vi</option>
-          </select>
-        </div>
+            <div className="filter-group">
+              <label htmlFor="director">
+                <span className="label-icon">🎥</span>
+                Diretor/Diretora
+              </label>
+              <input
+                type="text"
+                id="director"
+                name="director"
+                value={filters.director}
+                onChange={handleChange}
+                placeholder="Nome do diretor(a)..."
+              />
+            </div>
 
-        <div className="filter-group">
-          <label htmlFor="type">Tipo</label>
-          <select
-            id="type"
-            name="type"
-            value={filters.type}
-            onChange={handleChange}
-          >
-            <option value="">Todos</option>
-            <option value="movie">Filmes</option>
-            <option value="series">Séries</option>
-          </select>
-        </div>
+            <div className="filter-group">
+              <label htmlFor="actors">
+                <span className="label-icon">🎭</span>
+                Atores/Atrizes
+              </label>
+              <input
+                type="text"
+                id="actors"
+                name="actors"
+                value={filters.actors}
+                onChange={handleChange}
+                placeholder="Nome do ator ou atriz..."
+              />
+            </div>
+          </div>
 
-        <div className="filter-group">
-          <label htmlFor="genre">Gênero</label>
-          <input
-            type="text"
-            id="genre"
-            name="genre"
-            value={filters.genre}
-            onChange={handleChange}
-            placeholder="Ex: Ação, Drama..."
-          />
+          {hasActiveFilters && (
+            <div className="filter-actions">
+              <button className="btn-clear" onClick={handleClear}>
+                ✕ Limpar busca
+              </button>
+            </div>
+          )}
         </div>
-
-        <div className="filter-actions">
-          <button className="btn-clear" onClick={handleClear}>
-            Limpar
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
