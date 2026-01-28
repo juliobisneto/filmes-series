@@ -12,6 +12,7 @@ function FriendCollectionPage() {
   const [friendData, setFriendData] = useState(null);
   const [media, setMedia] = useState([]);
   const [filteredMedia, setFilteredMedia] = useState([]);
+  const [myMediaIds, setMyMediaIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -19,10 +20,30 @@ function FriendCollectionPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get(`/friends/${friendId}/media`);
-      setFriendData(response.data.data.friend);
-      setMedia(response.data.data.media);
-      setFilteredMedia(response.data.data.media);
+      
+      // Carregar coleção do amigo E sua coleção em paralelo para melhor performance
+      const [friendResponse, myMediaResponse] = await Promise.all([
+        api.get(`/friends/${friendId}/media`),
+        api.get('/media')
+      ]);
+      
+      setFriendData(friendResponse.data.data.friend);
+      setMedia(friendResponse.data.data.media);
+      setFilteredMedia(friendResponse.data.data.media);
+      
+      // Criar Set com seus IDs de filmes para comparação rápida O(1)
+      const myIds = new Set();
+      myMediaResponse.data.data.forEach(item => {
+        // Usar IMDB ID se disponível (mais confiável para identificar o mesmo filme)
+        if (item.imdb_id) {
+          myIds.add(item.imdb_id);
+        }
+        // Fallback: usar título + ano como identificador único
+        const key = `${item.title.toLowerCase()}_${item.year || ''}`;
+        myIds.add(key);
+      });
+      setMyMediaIds(myIds);
+      
     } catch (err) {
       console.error('Erro ao carregar coleção:', err);
       if (err.response?.status === 403) {
@@ -204,14 +225,22 @@ function FriendCollectionPage() {
             <span className="section-count">{groupedMedia.quero_ver.length}</span>
           </h2>
           <div className="media-grid">
-            {groupedMedia.quero_ver.map(item => (
-              <MediaCard
-                key={item.id}
-                media={item}
-                readOnly={true}
-                onAddToCollection={handleAddToMyCollection}
-              />
-            ))}
+            {groupedMedia.quero_ver.map(item => {
+              // Verificar se você já tem este filme na sua coleção
+              const imdbKey = item.imdb_id;
+              const titleKey = `${item.title.toLowerCase()}_${item.year || ''}`;
+              const alreadyInCollection = myMediaIds.has(imdbKey) || myMediaIds.has(titleKey);
+              
+              return (
+                <MediaCard
+                  key={item.id}
+                  media={item}
+                  readOnly={true}
+                  alreadyInCollection={alreadyInCollection}
+                  onAddToCollection={handleAddToMyCollection}
+                />
+              );
+            })}
           </div>
         </div>
       )}
@@ -224,14 +253,21 @@ function FriendCollectionPage() {
             <span className="section-count">{groupedMedia.assistindo.length}</span>
           </h2>
           <div className="media-grid">
-            {groupedMedia.assistindo.map(item => (
-              <MediaCard
-                key={item.id}
-                media={item}
-                readOnly={true}
-                onAddToCollection={handleAddToMyCollection}
-              />
-            ))}
+            {groupedMedia.assistindo.map(item => {
+              const imdbKey = item.imdb_id;
+              const titleKey = `${item.title.toLowerCase()}_${item.year || ''}`;
+              const alreadyInCollection = myMediaIds.has(imdbKey) || myMediaIds.has(titleKey);
+              
+              return (
+                <MediaCard
+                  key={item.id}
+                  media={item}
+                  readOnly={true}
+                  alreadyInCollection={alreadyInCollection}
+                  onAddToCollection={handleAddToMyCollection}
+                />
+              );
+            })}
           </div>
         </div>
       )}
@@ -244,14 +280,21 @@ function FriendCollectionPage() {
             <span className="section-count">{groupedMedia.rever.length}</span>
           </h2>
           <div className="media-grid">
-            {groupedMedia.rever.map(item => (
-              <MediaCard
-                key={item.id}
-                media={item}
-                readOnly={true}
-                onAddToCollection={handleAddToMyCollection}
-              />
-            ))}
+            {groupedMedia.rever.map(item => {
+              const imdbKey = item.imdb_id;
+              const titleKey = `${item.title.toLowerCase()}_${item.year || ''}`;
+              const alreadyInCollection = myMediaIds.has(imdbKey) || myMediaIds.has(titleKey);
+              
+              return (
+                <MediaCard
+                  key={item.id}
+                  media={item}
+                  readOnly={true}
+                  alreadyInCollection={alreadyInCollection}
+                  onAddToCollection={handleAddToMyCollection}
+                />
+              );
+            })}
           </div>
         </div>
       )}
@@ -264,14 +307,21 @@ function FriendCollectionPage() {
             <span className="section-count">{groupedMedia.ja_vi.length}</span>
           </h2>
           <div className="media-grid">
-            {groupedMedia.ja_vi.map(item => (
-              <MediaCard
-                key={item.id}
-                media={item}
-                readOnly={true}
-                onAddToCollection={handleAddToMyCollection}
-              />
-            ))}
+            {groupedMedia.ja_vi.map(item => {
+              const imdbKey = item.imdb_id;
+              const titleKey = `${item.title.toLowerCase()}_${item.year || ''}`;
+              const alreadyInCollection = myMediaIds.has(imdbKey) || myMediaIds.has(titleKey);
+              
+              return (
+                <MediaCard
+                  key={item.id}
+                  media={item}
+                  readOnly={true}
+                  alreadyInCollection={alreadyInCollection}
+                  onAddToCollection={handleAddToMyCollection}
+                />
+              );
+            })}
           </div>
         </div>
       )}

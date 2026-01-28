@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import './MediaCard.css';
 
-function MediaCard({ media, onDelete, readOnly = false }) {
+function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = false }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [showAddOptions, setShowAddOptions] = useState(false);
@@ -207,28 +207,39 @@ function MediaCard({ media, onDelete, readOnly = false }) {
             </>
           ) : (
             <>
-              {!showAddOptions ? (
-                <button className="btn-add-to-collection" onClick={handleAddClick} disabled={adding}>
-                  {adding ? 'Adicionando...' : '➕ Adicionar à Minha Coleção'}
-                </button>
-              ) : (
-                <div className="add-to-collection-options">
-                  <select value={addStatus} onChange={(e) => setAddStatus(e.target.value)}>
-                    <option value="quero_ver">Quero Ver</option>
-                    <option value="assistindo">Assistindo</option>
-                    <option value="rever">Quero Ver Novamente</option>
-                    <option value="ja_vi">Já Vi</option>
-                  </select>
-                  <button className="btn-confirm-add" onClick={handleConfirmAdd} disabled={adding}>
-                    {adding ? 'Confirmando...' : '✓ Confirmar'}
-                  </button>
-                  <button className="btn-cancel-add" onClick={handleCancelAdd} disabled={adding}>
-                    ✕ Cancelar
-                  </button>
+              {alreadyInCollection ? (
+                // Filme já está na sua coleção - mostrar badge
+                <div className="already-in-collection-badge">
+                  <span className="badge-icon">✓</span>
+                  <span className="badge-text">Na sua coleção</span>
                 </div>
+              ) : (
+                // Filme NÃO está na sua coleção - mostrar botão para adicionar
+                <>
+                  {!showAddOptions ? (
+                    <button className="btn-add-to-collection" onClick={handleAddClick} disabled={adding}>
+                      {adding ? 'Adicionando...' : '➕ Adicionar à Minha Coleção'}
+                    </button>
+                  ) : (
+                    <div className="add-to-collection-options">
+                      <select value={addStatus} onChange={(e) => setAddStatus(e.target.value)}>
+                        <option value="quero_ver">Quero Ver</option>
+                        <option value="assistindo">Assistindo</option>
+                        <option value="rever">Quero Ver Novamente</option>
+                        <option value="ja_vi">Já Vi</option>
+                      </select>
+                      <button className="btn-confirm-add" onClick={handleConfirmAdd} disabled={adding}>
+                        {adding ? 'Confirmando...' : '✓ Confirmar'}
+                      </button>
+                      <button className="btn-cancel-add" onClick={handleCancelAdd} disabled={adding}>
+                        ✕ Cancelar
+                      </button>
+                    </div>
+                  )}
+                  {addSuccess && <span className="add-success-message">{addSuccess}</span>}
+                  {addError && <span className="add-error-message">{addError}</span>}
+                </>
               )}
-              {addSuccess && <span className="add-success-message">{addSuccess}</span>}
-              {addError && <span className="add-error-message">{addError}</span>}
             </>
           )}
         </div>
