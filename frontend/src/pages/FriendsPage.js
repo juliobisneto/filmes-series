@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import './FriendsPage.css';
 
@@ -12,7 +11,6 @@ function FriendsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-  const navigate = useNavigate();
 
   const loadFriends = useCallback(async () => {
     try {
