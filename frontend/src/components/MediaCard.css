@@ -443,3 +443,214 @@
     font-size: 0.85rem;
   }
 }
+
+/* Estilos para opções de adicionar à coleção */
+.add-to-collection-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, rgba(70, 211, 105, 0.05), rgba(70, 211, 105, 0.1));
+  border: 2px solid var(--success-color);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 8px rgba(70, 211, 105, 0.2);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.add-to-collection-options select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+  padding-right: 40px;
+}
+
+.add-to-collection-options select:hover {
+  border-color: var(--success-color);
+  background-color: rgba(70, 211, 105, 0.05);
+}
+
+.add-to-collection-options select:focus {
+  outline: none;
+  border-color: var(--success-color);
+  box-shadow: 0 0 0 3px rgba(70, 211, 105, 0.2);
+}
+
+.btn-confirm-add {
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--success-color), #45a049);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(70, 211, 105, 0.3);
+  letter-spacing: 0.5px;
+}
+
+.btn-confirm-add:hover:not(:disabled) {
+  background: linear-gradient(135deg, #45a049, #3d8e41);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(70, 211, 105, 0.4);
+}
+
+.btn-confirm-add:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-confirm-add:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-cancel-add {
+  width: 100%;
+  padding: 10px 20px;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel-add:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--text-color);
+  color: var(--text-color);
+}
+
+.btn-cancel-add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-success-message {
+  color: var(--success-color);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 8px;
+  text-align: center;
+  width: 100%;
+  padding: 8px;
+  background-color: rgba(70, 211, 105, 0.1);
+  border-radius: var(--border-radius);
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.add-error-message {
+  color: var(--error-color);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 8px;
+  text-align: center;
+  width: 100%;
+  padding: 8px;
+  background-color: rgba(244, 67, 54, 0.1);
+  border-radius: var(--border-radius);
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Melhorar botão principal de adicionar */
+.btn-add-to-collection {
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--success-color), #45a049);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(70, 211, 105, 0.3);
+  letter-spacing: 0.5px;
+}
+
+.btn-add-to-collection:hover:not(:disabled) {
+  background: linear-gradient(135deg, #45a049, #3d8e41);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(70, 211, 105, 0.4);
+}
+
+.btn-add-to-collection:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-add-to-collection:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #999, #888);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .add-to-collection-options {
+    padding: 12px;
+  }
+
+  .add-to-collection-options select {
+    font-size: 0.95rem;
+    padding: 10px 12px;
+  }
+
+  .btn-confirm-add,
+  .btn-add-to-collection {
+    font-size: 0.95rem;
+    padding: 10px 16px;
+  }
+
+  .btn-cancel-add {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-to-collection-options select {
+    font-size: 0.9rem;
+  }
+
+  .btn-confirm-add,
+  .btn-add-to-collection {
+    font-size: 0.9rem;
+  }
+}
