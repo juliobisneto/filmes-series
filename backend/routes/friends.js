@@ -372,4 +372,51 @@ router.get('/:friendId/media', async (req, res) => {
   }
 });
 
+// GET - Buscar detalhes de um filme específico do amigo
+router.get('/:friendId/media/:mediaId', async (req, res) => {
+  try {
+    const { friendId, mediaId } = req.params;
+    
+    // Verificar se são amigos
+    const friendship = await db.get(`
+      SELECT id 
+      FROM friendships
+      WHERE ((user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?))
+      AND status = 'accepted'
+    `, [req.userId, friendId, friendId, req.userId]);
+    
+    if (!friendship) {
+      return res.status(403).json({ error: 'Você só pode ver filmes de amigos' });
+    }
+    
+    // Buscar informações do amigo
+    const friend = await db.get('SELECT id, name FROM users WHERE id = ?', [friendId]);
+    
+    if (!friend) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    
+    // Buscar o filme específico do amigo
+    const media = await db.get(`
+      SELECT * FROM media 
+      WHERE id = ? AND user_id = ?
+    `, [mediaId, friendId]);
+    
+    if (!media) {
+      return res.status(404).json({ error: 'Filme não encontrado' });
+    }
+    
+    res.json({ 
+      success: true, 
+      data: {
+        friend: { id: friend.id, name: friend.name },
+        media: media
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao buscar detalhes do filme do amigo:', error);
+    res.status(500).json({ error: 'Erro ao buscar detalhes do filme' });
+  }
+});
+
 module.exports = router;

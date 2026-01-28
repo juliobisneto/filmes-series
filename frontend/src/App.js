@@ -12,6 +12,7 @@ import PreviewPage from './pages/PreviewPage';
 import AdminPage from './pages/AdminPage';
 import FriendsPage from './pages/FriendsPage';
 import FriendCollectionPage from './pages/FriendCollectionPage';
+import FriendMediaDetailsPage from './pages/FriendMediaDetailsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
@@ -82,6 +83,11 @@ function App() {
             <Route path="/friend/:friendId" element={
               <PrivateRoute>
                 <FriendCollectionPage />
+              </PrivateRoute>
+            } />
+            <Route path="/friend/:friendId/media/:mediaId" element={
+              <PrivateRoute>
+                <FriendMediaDetailsPage />
               </PrivateRoute>
             } />
             

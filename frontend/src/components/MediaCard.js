@@ -1,61 +1,33 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import api from '../services/api';
 import './MediaCard.css';
 
-function MediaCard({ media, onDelete, readOnly = false, onAddToCollection }) {
+function MediaCard({ media, onDelete, readOnly = false }) {
   const navigate = useNavigate();
-  const [showStatusSelector, setShowStatusSelector] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState('quero_ver');
+  const location = useLocation();
+  const [showAddOptions, setShowAddOptions] = useState(false);
+  const [addStatus, setAddStatus] = useState('quero_ver');
+  const [adding, setAdding] = useState(false);
+  const [addError, setAddError] = useState(null);
+  const [addSuccess, setAddSuccess] = useState(null);
+  
+  // Extrair friendId da URL se estivermos na página do amigo
+  const friendId = location.pathname.match(/\/friend\/(\d+)/)?.[1];
 
   const handleCardClick = (e) => {
-    // Não navegar se clicar nos botões ou no seletor
-    if (e.target.closest('button') || e.target.closest('.status-selector')) {
+    if (e.target.closest('button') || e.target.closest('.add-to-collection-options')) {
       return;
     }
-    // Em modo readonly, não navegar pelo card (apenas pelo poster)
     if (!readOnly) {
       navigate(`/details/${media.id}`);
     }
   };
 
-  const handlePosterClick = (e) => {
-    e.stopPropagation();
-    
-    if (readOnly && onAddToCollection) {
-      // Em modo readonly, buscar tmdbId no título e ano para preview
-      // Se não tiver imdb_id, usar busca por título
-      if (media.imdb_id) {
-        // Extrair ID do IMDB (formato: tt1234567)
-        const imdbId = media.imdb_id;
-        // Redirecionar para busca TMDB via IMDB ID ou título
-        searchAndNavigateToPreview(imdbId, media.title, media.year);
-      } else {
-        // Buscar diretamente por título
-        searchAndNavigateToPreview(null, media.title, media.year);
-      }
-    } else if (!readOnly) {
-      navigate(`/details/${media.id}`);
-    }
-  };
-
-  const searchAndNavigateToPreview = async (imdbId, title, year) => {
-    try {
-      // Importar tmdbService dinamicamente
-      const tmdbService = await import('../services/tmdbService');
-      
-      // Buscar filme no TMDB
-      const searchQuery = year ? `${title} ${year}` : title;
-      const response = await tmdbService.default.searchMovie(searchQuery, 'pt-BR');
-      
-      if (response.data && response.data.results && response.data.results.length > 0) {
-        const firstResult = response.data.results[0];
-        navigate(`/preview/${firstResult.id}`);
-      } else {
-        alert(`Não foi possível encontrar "${title}" no TMDB para visualização.`);
-      }
-    } catch (error) {
-      console.error('Erro ao buscar no TMDB:', error);
-      alert('Erro ao buscar informações do filme.');
+  const handlePosterClick = () => {
+    if (readOnly && friendId) {
+      // Navegar para a página de detalhes do filme do amigo
+      navigate(`/friend/${friendId}/media/${media.id}`);
     }
   };
 
@@ -70,20 +42,53 @@ function MediaCard({ media, onDelete, readOnly = false, onAddToCollection }) {
   };
 
   const handleAddClick = () => {
-    setShowStatusSelector(true);
+    setShowAddOptions(true);
+    setAddError(null);
+    setAddSuccess(null);
   };
 
-  const handleConfirmAdd = () => {
-    if (onAddToCollection) {
-      onAddToCollection(media, selectedStatus);
+  const handleConfirmAdd = async () => {
+    setAdding(true);
+    setAddError(null);
+    setAddSuccess(null);
+    try {
+      const mediaToAdd = {
+        ...media,
+        status: addStatus,
+        notes: media.notes ? `${media.notes}\nAdicionado da coleção de um amigo.` : `Adicionado da coleção de um amigo.`,
+        id: undefined, // Ensure new ID is generated
+        user_id: undefined, // Ensure new user_id is set by backend
+        date_added: undefined, // Let backend set current timestamp
+        date_watched: addStatus === 'ja_vi' ? new Date().toISOString().split('T')[0] : undefined,
+      };
+
+      const response = await api.post('/media', mediaToAdd);
+      setAddSuccess('Filme adicionado com sucesso!');
+      setShowAddOptions(false);
+      // Optionally, navigate to the added movie
+      setTimeout(() => {
+        navigate(`/details/${response.data.data.id}`);
+      }, 1000);
+    } catch (err) {
+      console.error('Erro ao adicionar filme:', err);
+      if (err.response?.status === 409) {
+        const existingMedia = err.response.data.data;
+        if (window.confirm(`"${media.title}" já existe na sua coleção com o status "${existingMedia.status}". Deseja vê-lo?`)) {
+          navigate(`/details/${existingMedia.id}`);
+        }
+        setAddError('Filme já existe na sua coleção.');
+      } else {
+        setAddError('Erro ao adicionar filme à sua coleção.');
+      }
+    } finally {
+      setAdding(false);
     }
-    setShowStatusSelector(false);
-    setSelectedStatus('quero_ver');
   };
 
   const handleCancelAdd = () => {
-    setShowStatusSelector(false);
-    setSelectedStatus('quero_ver');
+    setShowAddOptions(false);
+    setAddError(null);
+    setAddSuccess(null);
   };
 
   const renderStars = (rating) => {
@@ -124,7 +129,6 @@ function MediaCard({ media, onDelete, readOnly = false, onAddToCollection }) {
         ) : (
           <span>🎬</span>
         )}
-        {readOnly && <div className="readonly-overlay">👀 Ver Preview</div>}
       </div>
       
       <div className="media-card-content">
@@ -155,7 +159,7 @@ function MediaCard({ media, onDelete, readOnly = false, onAddToCollection }) {
           <div className="media-card-ratings">
             {media.rating && (
               <div className="rating-item">
-                <span className="rating-label">Nota do amigo</span>
+                <span className="rating-label">{readOnly ? 'Nota do amigo' : 'Minha nota'}</span>
                 <div className="rating-value rating-stars">
                   {renderStars(media.rating)}
                 </div>
@@ -178,47 +182,43 @@ function MediaCard({ media, onDelete, readOnly = false, onAddToCollection }) {
           </span>
         </div>
 
-        {!readOnly && (
-          <div className="media-card-actions">
-            <button className="btn-edit" onClick={handleEdit}>
-              Editar
-            </button>
-            <button className="btn-delete" onClick={handleDelete}>
-              Excluir
-            </button>
-          </div>
-        )}
-
-        {readOnly && !showStatusSelector && (
-          <div className="media-card-actions readonly-actions">
-            <button className="btn-add-to-collection" onClick={handleAddClick}>
-              ➕ Adicionar à Minha Coleção
-            </button>
-          </div>
-        )}
-
-        {readOnly && showStatusSelector && (
-          <div className="status-selector" onClick={(e) => e.stopPropagation()}>
-            <label>Adicionar como:</label>
-            <select 
-              value={selectedStatus} 
-              onChange={(e) => setSelectedStatus(e.target.value)}
-            >
-              <option value="quero_ver">Quero Ver</option>
-              <option value="assistindo">Assistindo</option>
-              <option value="rever">Quero Ver Novamente</option>
-              <option value="ja_vi">Já Vi</option>
-            </select>
-            <div className="status-selector-actions">
-              <button className="btn-confirm" onClick={handleConfirmAdd}>
-                ✓ Confirmar
+        <div className="media-card-actions">
+          {!readOnly ? (
+            <>
+              <button className="btn-edit" onClick={handleEdit}>
+                Editar
               </button>
-              <button className="btn-cancel" onClick={handleCancelAdd}>
-                ✕ Cancelar
+              <button className="btn-delete" onClick={handleDelete}>
+                Excluir
               </button>
-            </div>
-          </div>
-        )}
+            </>
+          ) : (
+            <>
+              {!showAddOptions ? (
+                <button className="btn-add-to-collection" onClick={handleAddClick} disabled={adding}>
+                  {adding ? 'Adicionando...' : '➕ Adicionar à Minha Coleção'}
+                </button>
+              ) : (
+                <div className="add-to-collection-options">
+                  <select value={addStatus} onChange={(e) => setAddStatus(e.target.value)}>
+                    <option value="quero_ver">Quero Ver</option>
+                    <option value="assistindo">Assistindo</option>
+                    <option value="rever">Quero Ver Novamente</option>
+                    <option value="ja_vi">Já Vi</option>
+                  </select>
+                  <button className="btn-confirm-add" onClick={handleConfirmAdd} disabled={adding}>
+                    {adding ? 'Confirmando...' : '✓ Confirmar'}
+                  </button>
+                  <button className="btn-cancel-add" onClick={handleCancelAdd} disabled={adding}>
+                    ✕ Cancelar
+                  </button>
+                </div>
+              )}
+              {addSuccess && <span className="add-success-message">{addSuccess}</span>}
+              {addError && <span className="add-error-message">{addError}</span>}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
