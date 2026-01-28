@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import './FriendsPage.css';
 
 function FriendsPage() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('friends');
   const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState({ received: [], sent: [] });
@@ -267,12 +269,23 @@ function FriendsPage() {
                         {friend.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="friend-info">
-                        <h3>{friend.name}</h3>
+                        <h3 
+                          className="friend-name-link" 
+                          onClick={() => navigate(`/friend/${friend.friend_id}`)}
+                        >
+                          {friend.name}
+                        </h3>
                         <p className="friend-email">{friend.email}</p>
                         <p className="friend-since">Amigos desde {new Date(friend.friends_since).toLocaleDateString('pt-BR')}</p>
                       </div>
                     </div>
                     <div className="friend-actions">
+                      <button
+                        className="btn-view-collection"
+                        onClick={() => navigate(`/friend/${friend.friend_id}`)}
+                      >
+                        📚 Ver Coleção
+                      </button>
                       <button
                         className="btn-remove"
                         onClick={() => handleRemoveFriend(friend.friend_id, friend.name)}

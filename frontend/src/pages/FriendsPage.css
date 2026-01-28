@@ -183,6 +183,35 @@
   font-size: 1.1rem;
 }
 
+.friend-name-link {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.friend-name-link:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+  transform: translateX(3px);
+}
+
+.btn-view-collection {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-view-collection:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
 .user-email,
 .friend-email,
 .request-email {

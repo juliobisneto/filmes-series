@@ -295,4 +295,81 @@ router.delete('/:friendId', async (req, res) => {
   }
 });
 
+// GET - Verificar se são amigos
+router.get('/:friendId/verify', async (req, res) => {
+  try {
+    const { friendId } = req.params;
+    
+    const friendship = await db.get(`
+      SELECT id, status 
+      FROM friendships
+      WHERE ((user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?))
+      AND status = 'accepted'
+    `, [req.userId, friendId, friendId, req.userId]);
+    
+    if (friendship) {
+      res.json({ success: true, areFriends: true });
+    } else {
+      res.json({ success: true, areFriends: false });
+    }
+  } catch (error) {
+    console.error('Erro ao verificar amizade:', error);
+    res.status(500).json({ error: 'Erro ao verificar amizade' });
+  }
+});
+
+// GET - Buscar coleção de mídia de um amigo
+router.get('/:friendId/media', async (req, res) => {
+  try {
+    const { friendId } = req.params;
+    
+    // Verificar se são amigos
+    const friendship = await db.get(`
+      SELECT id 
+      FROM friendships
+      WHERE ((user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?))
+      AND status = 'accepted'
+    `, [req.userId, friendId, friendId, req.userId]);
+    
+    if (!friendship) {
+      return res.status(403).json({ error: 'Você só pode ver a coleção de amigos' });
+    }
+    
+    // Buscar informações do amigo
+    const friend = await db.get('SELECT id, name FROM users WHERE id = ?', [friendId]);
+    
+    if (!friend) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    
+    // Buscar mídia do amigo
+    const media = await db.all(`
+      SELECT * FROM media 
+      WHERE user_id = ?
+      ORDER BY 
+        CASE status 
+          WHEN 'quero_ver' THEN 1 
+          WHEN 'assistindo' THEN 2 
+          WHEN 'rever' THEN 3
+          WHEN 'ja_vi' THEN 4
+        END,
+        CASE 
+          WHEN status = 'ja_vi' THEN COALESCE(date_watched, date_added)
+          ELSE date_added
+        END DESC
+    `, [friendId]);
+    
+    res.json({ 
+      success: true, 
+      data: {
+        friend: { id: friend.id, name: friend.name },
+        media: media
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao buscar mídia do amigo:', error);
+    res.status(500).json({ error: 'Erro ao buscar mídia do amigo' });
+  }
+});
+
 module.exports = router;

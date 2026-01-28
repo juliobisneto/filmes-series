@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MediaCard.css';
 
-function MediaCard({ media, onDelete }) {
+function MediaCard({ media, onDelete, readOnly = false, onAddToCollection }) {
   const navigate = useNavigate();
+  const [showStatusSelector, setShowStatusSelector] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState('quero_ver');
 
   const handleCardClick = (e) => {
-    // Não navegar se clicar nos botões
-    if (e.target.closest('button')) {
+    // Não navegar se clicar nos botões ou no seletor
+    if (e.target.closest('button') || e.target.closest('.status-selector')) {
       return;
     }
-    navigate(`/details/${media.id}`);
+    // Em modo readonly, não navegar para detalhes (não tem acesso)
+    if (!readOnly) {
+      navigate(`/details/${media.id}`);
+    }
   };
 
   const handleDelete = async () => {
@@ -21,6 +26,23 @@ function MediaCard({ media, onDelete }) {
 
   const handleEdit = () => {
     navigate(`/edit/${media.id}`);
+  };
+
+  const handleAddClick = () => {
+    setShowStatusSelector(true);
+  };
+
+  const handleConfirmAdd = () => {
+    if (onAddToCollection) {
+      onAddToCollection(media, selectedStatus);
+    }
+    setShowStatusSelector(false);
+    setSelectedStatus('quero_ver');
+  };
+
+  const handleCancelAdd = () => {
+    setShowStatusSelector(false);
+    setSelectedStatus('quero_ver');
   };
 
   const renderStars = (rating) => {
@@ -37,6 +59,7 @@ function MediaCard({ media, onDelete }) {
     const statusLabels = {
       'quero_ver': 'Quero Ver',
       'assistindo': 'Assistindo',
+      'rever': 'Quero Ver Novamente',
       'ja_vi': 'Já Vi'
     };
     return statusLabels[status] || status;
@@ -48,7 +71,7 @@ function MediaCard({ media, onDelete }) {
 
   return (
     <div 
-      className={`media-card ${media.status === 'quero_ver' ? 'highlight-quero-ver' : ''}`}
+      className={`media-card ${media.status === 'quero_ver' ? 'highlight-quero-ver' : ''} ${readOnly ? 'readonly' : ''}`}
       onClick={handleCardClick}
     >
       <div className="media-card-poster">
@@ -57,6 +80,7 @@ function MediaCard({ media, onDelete }) {
         ) : (
           <span>🎬</span>
         )}
+        {readOnly && <div className="readonly-overlay">👀</div>}
       </div>
       
       <div className="media-card-content">
@@ -87,7 +111,7 @@ function MediaCard({ media, onDelete }) {
           <div className="media-card-ratings">
             {media.rating && (
               <div className="rating-item">
-                <span className="rating-label">Minha nota</span>
+                <span className="rating-label">Nota do amigo</span>
                 <div className="rating-value rating-stars">
                   {renderStars(media.rating)}
                 </div>
@@ -110,14 +134,47 @@ function MediaCard({ media, onDelete }) {
           </span>
         </div>
 
-        <div className="media-card-actions">
-          <button className="btn-edit" onClick={handleEdit}>
-            Editar
-          </button>
-          <button className="btn-delete" onClick={handleDelete}>
-            Excluir
-          </button>
-        </div>
+        {!readOnly && (
+          <div className="media-card-actions">
+            <button className="btn-edit" onClick={handleEdit}>
+              Editar
+            </button>
+            <button className="btn-delete" onClick={handleDelete}>
+              Excluir
+            </button>
+          </div>
+        )}
+
+        {readOnly && !showStatusSelector && (
+          <div className="media-card-actions readonly-actions">
+            <button className="btn-add-to-collection" onClick={handleAddClick}>
+              ➕ Adicionar à Minha Coleção
+            </button>
+          </div>
+        )}
+
+        {readOnly && showStatusSelector && (
+          <div className="status-selector" onClick={(e) => e.stopPropagation()}>
+            <label>Adicionar como:</label>
+            <select 
+              value={selectedStatus} 
+              onChange={(e) => setSelectedStatus(e.target.value)}
+            >
+              <option value="quero_ver">Quero Ver</option>
+              <option value="assistindo">Assistindo</option>
+              <option value="rever">Quero Ver Novamente</option>
+              <option value="ja_vi">Já Vi</option>
+            </select>
+            <div className="status-selector-actions">
+              <button className="btn-confirm" onClick={handleConfirmAdd}>
+                ✓ Confirmar
+              </button>
+              <button className="btn-cancel" onClick={handleCancelAdd}>
+                ✕ Cancelar
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
