@@ -18,15 +18,20 @@ function FriendMediaDetailsPage() {
     try {
       setLoading(true);
       setError(null);
+      console.log('Carregando detalhes:', { friendId, mediaId });
       const response = await api.get(`/friends/${friendId}/media/${mediaId}`);
+      console.log('Resposta recebida:', response.data);
       setFriendData(response.data.data.friend);
       setMedia(response.data.data.media);
     } catch (err) {
       console.error('Erro ao carregar detalhes:', err);
+      console.error('Erro response:', err.response);
       if (err.response?.status === 403) {
         setError('Você não tem permissão para ver este filme');
+      } else if (err.response?.status === 404) {
+        setError('Filme não encontrado');
       } else {
-        setError('Erro ao carregar detalhes do filme');
+        setError(`Erro ao carregar detalhes do filme: ${err.response?.data?.error || err.message}`);
       }
     } finally {
       setLoading(false);
