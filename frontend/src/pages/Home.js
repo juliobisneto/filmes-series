@@ -119,7 +119,7 @@ function Home() {
               para não esquecer e poder recorrer sempre que for assistir um filme novo ou começar 
               uma série nova. Use sem moderação, navegue e se perca nos links cruzados de atores, 
               atrizes e diretores. Ah, ainda rola um dashboard para você poder se surpreender com 
-              seus próprios números. Se quiser deixar um feedback depois, não exite, envie um 
+              seus próprios números. Se quiser deixar um feedback depois, não hesite, envie um 
               email para <a href="mailto:julio.bisneto@gmail.com">julio.bisneto@gmail.com</a> ou 
               uma mensagem para <a href="https://wa.me/5521984866404" target="_blank" rel="noopener noreferrer">21 984866404</a>. 
               Abraços 🎬
