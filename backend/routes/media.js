@@ -84,7 +84,11 @@ router.get('/search/local', async (req, res) => {
     const sql = `
       SELECT * FROM media 
       WHERE user_id = ?
-      AND (title LIKE ? OR actors LIKE ? OR director LIKE ?)
+      AND (
+        LOWER(title) LIKE LOWER(?) 
+        OR LOWER(actors) LIKE LOWER(?) 
+        OR LOWER(director) LIKE LOWER(?)
+      )
       ORDER BY 
         CASE status 
           WHEN 'quero_ver' THEN 1 
