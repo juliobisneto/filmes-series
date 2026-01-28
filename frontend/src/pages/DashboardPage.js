@@ -39,6 +39,7 @@ function DashboardPage() {
     // Por status
     const queroVer = mediaData.filter(m => m.status === 'quero_ver').length;
     const assistindo = mediaData.filter(m => m.status === 'assistindo').length;
+    const rever = mediaData.filter(m => m.status === 'rever').length;
     const jaVi = mediaData.filter(m => m.status === 'ja_vi').length;
 
     // Avaliações
@@ -99,6 +100,7 @@ function DashboardPage() {
     const statusData = [
       { label: 'Quero Ver', value: queroVer },
       { label: 'Assistindo', value: assistindo },
+      { label: 'Quero Ver Novamente', value: rever },
       { label: 'Já Vi', value: jaVi }
     ].filter(item => item.value > 0);
 
@@ -155,6 +157,7 @@ function DashboardPage() {
       totalSeries,
       queroVer,
       assistindo,
+      rever,
       jaVi,
       avgRating,
       totalHours,

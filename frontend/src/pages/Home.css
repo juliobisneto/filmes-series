@@ -143,6 +143,17 @@
   border: 1px solid #2196f3;
 }
 
+.section-title.rewatch {
+  color: #9c27b0;
+  border-bottom-color: #9c27b0;
+}
+
+.section-title.rewatch .section-count {
+  background-color: rgba(156, 39, 176, 0.2);
+  color: #9c27b0;
+  border: 1px solid #9c27b0;
+}
+
 .section-title.watched {
   color: var(--success-color);
   border-bottom-color: var(--success-color);

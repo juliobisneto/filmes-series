@@ -74,6 +74,7 @@ function Home() {
   const groupedMedia = {
     quero_ver: filteredMedia.filter(item => item.status === 'quero_ver'),
     assistindo: filteredMedia.filter(item => item.status === 'assistindo'),
+    rever: filteredMedia.filter(item => item.status === 'rever'),
     ja_vi: filteredMedia.filter(item => item.status === 'ja_vi')
   };
 
@@ -172,6 +173,25 @@ function Home() {
               </h2>
               <div className="media-grid">
                 {groupedMedia.assistindo.map(item => (
+                  <MediaCard
+                    key={item.id}
+                    media={item}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {groupedMedia.rever.length > 0 && (
+            <div className="media-section">
+              <h2 className="section-title rewatch">
+                <span className="section-icon">🔄</span>
+                Quero Ver Novamente
+                <span className="section-count">{groupedMedia.rever.length}</span>
+              </h2>
+              <div className="media-grid">
+                {groupedMedia.rever.map(item => (
                   <MediaCard
                     key={item.id}
                     media={item}

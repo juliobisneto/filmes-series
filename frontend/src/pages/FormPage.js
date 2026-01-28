@@ -549,6 +549,7 @@ Deseja visualizar o filme cadastrado?`;
                 <option value="quero_ver">Quero Ver</option>
                 <option value="assistindo">Assistindo</option>
                 <option value="ja_vi">Já Vi</option>
+                <option value="rever">Já vi, mas quero ver novamente</option>
               </select>
             </div>
 

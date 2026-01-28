@@ -31,12 +31,14 @@ router.get('/', async (req, res) => {
     // Ordenar por: 
     // 1. Status "quero_ver" primeiro
     // 2. Status "assistindo" segundo
-    // 3. Status "ja_vi" por último (ordenados por data)
+    // 3. Status "rever" terceiro
+    // 4. Status "ja_vi" por último (ordenados por data)
     sql += ` ORDER BY 
       CASE status 
         WHEN 'quero_ver' THEN 1 
         WHEN 'assistindo' THEN 2 
-        WHEN 'ja_vi' THEN 3 
+        WHEN 'rever' THEN 3 
+        WHEN 'ja_vi' THEN 4 
       END,
       CASE 
         WHEN status = 'ja_vi' THEN COALESCE(date_watched, date_added)
@@ -93,7 +95,8 @@ router.get('/search/local', async (req, res) => {
         CASE status 
           WHEN 'quero_ver' THEN 1 
           WHEN 'assistindo' THEN 2 
-          WHEN 'ja_vi' THEN 3 
+          WHEN 'rever' THEN 3 
+          WHEN 'ja_vi' THEN 4 
         END,
         date_added DESC
     `;
