@@ -141,7 +141,7 @@ function Home() {
         <div className="empty-state">
           <div className="empty-icon">📭</div>
           <p className="empty-text">
-            Nenhum filme ou série encontrado.{' '}
+            Nenhum filme ou série cadastrado.{' '}
             <Link to="/add" className="add-first-link">
               Adicione o primeiro!
             </Link>
