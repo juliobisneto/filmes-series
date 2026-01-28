@@ -63,10 +63,25 @@ function FriendMediaDetailsPage() {
       navigate(`/details/${response.data.data.id}`);
     } catch (err) {
       console.error('Erro ao adicionar filme:', err);
+      console.error('Erro response:', err.response);
+      
       if (err.response?.status === 409) {
-        const existingMedia = err.response.data.data;
-        if (window.confirm(`"${media.title}" já existe na sua coleção com o status "${existingMedia.status}". Deseja vê-lo?`)) {
-          navigate(`/details/${existingMedia.id}`);
+        const existingMedia = err.response?.data?.data;
+        
+        if (existingMedia && existingMedia.id) {
+          const statusLabels = {
+            'quero_ver': 'Quero Ver',
+            'assistindo': 'Assistindo',
+            'rever': 'Quero Ver Novamente',
+            'ja_vi': 'Já Vi'
+          };
+          const statusText = statusLabels[existingMedia.status] || existingMedia.status || 'status desconhecido';
+          
+          if (window.confirm(`"${media.title}" já existe na sua coleção com o status "${statusText}". Deseja visualizá-lo?`)) {
+            navigate(`/details/${existingMedia.id}`);
+          }
+        } else {
+          alert(`"${media.title}" já existe na sua coleção.`);
         }
       } else {
         alert('Erro ao adicionar filme à sua coleção.');
