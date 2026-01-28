@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
 import './Header.css';
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
   const location = useLocation();
   const { user, logout, isAuthenticated } = useAuth();
 
@@ -33,6 +35,26 @@ function Header() {
   const isAdmin = () => {
     return user?.email === 'julio.bisneto@gmail.com';
   };
+
+  const loadPendingRequests = useCallback(async () => {
+    try {
+      const response = await api.get('/friends/requests');
+      const receivedCount = response.data.data.received.length;
+      setPendingRequestsCount(receivedCount);
+    } catch (err) {
+      console.error('Erro ao carregar solicitações:', err);
+      setPendingRequestsCount(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadPendingRequests();
+      // Atualizar a cada 30 segundos
+      const interval = setInterval(loadPendingRequests, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, loadPendingRequests]);
 
   // Não mostrar header nas páginas de login/registro
   if (!isAuthenticated) {
@@ -63,6 +85,9 @@ function Header() {
           </Link>
           <Link to="/friends" className={isActive('/friends')} onClick={closeMenu}>
             👥 Amigos
+            {pendingRequestsCount > 0 && (
+              <span className="notification-badge">{pendingRequestsCount}</span>
+            )}
           </Link>
           {isAdmin() && (
             <Link to="/admin" className={`${isActive('/admin')} admin-link`} onClick={closeMenu}>
