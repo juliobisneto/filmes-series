@@ -9,6 +9,8 @@ function FriendMediaDetailsPage() {
   const navigate = useNavigate();
   const [friendData, setFriendData] = useState(null);
   const [media, setMedia] = useState(null);
+  const [alreadyInCollection, setAlreadyInCollection] = useState(false);
+  const [existingMediaId, setExistingMediaId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [addStatus, setAddStatus] = useState('quero_ver');
@@ -19,10 +21,40 @@ function FriendMediaDetailsPage() {
       setLoading(true);
       setError(null);
       console.log('Carregando detalhes:', { friendId, mediaId });
-      const response = await api.get(`/friends/${friendId}/media/${mediaId}`);
-      console.log('Resposta recebida:', response.data);
-      setFriendData(response.data.data.friend);
-      setMedia(response.data.data.media);
+      
+      // Carregar filme do amigo E sua coleção em paralelo
+      const [friendMediaResponse, myMediaResponse] = await Promise.all([
+        api.get(`/friends/${friendId}/media/${mediaId}`),
+        api.get('/media')
+      ]);
+      
+      console.log('Resposta recebida:', friendMediaResponse.data);
+      setFriendData(friendMediaResponse.data.data.friend);
+      setMedia(friendMediaResponse.data.data.media);
+      
+      // Verificar se você já tem este filme na sua coleção
+      const friendMovie = friendMediaResponse.data.data.media;
+      const myMovies = myMediaResponse.data.data;
+      
+      const existingMovie = myMovies.find(item => {
+        // Verificar por IMDB ID (mais confiável)
+        if (friendMovie.imdb_id && item.imdb_id === friendMovie.imdb_id) {
+          return true;
+        }
+        // Fallback: verificar por título + ano
+        const titleMatch = item.title.toLowerCase() === friendMovie.title.toLowerCase();
+        const yearMatch = item.year === friendMovie.year;
+        return titleMatch && yearMatch;
+      });
+      
+      if (existingMovie) {
+        setAlreadyInCollection(true);
+        setExistingMediaId(existingMovie.id);
+      } else {
+        setAlreadyInCollection(false);
+        setExistingMediaId(null);
+      }
+      
     } catch (err) {
       console.error('Erro ao carregar detalhes:', err);
       console.error('Erro response:', err.response);
@@ -274,30 +306,53 @@ function FriendMediaDetailsPage() {
               </div>
             )}
 
-            {/* Adicionar à Coleção */}
-            <div className="info-section add-section">
-              <h3>➕ Adicionar à Minha Coleção</h3>
-              <div className="add-controls">
-                <label htmlFor="add-status">Escolha o status:</label>
-                <select 
-                  id="add-status"
-                  value={addStatus} 
-                  onChange={(e) => setAddStatus(e.target.value)}
-                  disabled={adding}
-                >
-                  <option value="quero_ver">Quero Ver</option>
-                  <option value="assistindo">Assistindo</option>
-                  <option value="rever">Quero Ver Novamente</option>
-                  <option value="ja_vi">Já Vi</option>
-                </select>
-                <button 
-                  className="btn-add-collection"
-                  onClick={handleAddToCollection}
-                  disabled={adding}
-                >
-                  {adding ? '⏳ Adicionando...' : '✓ Adicionar à Minha Coleção'}
-                </button>
-              </div>
+            {/* Adicionar à Coleção ou Já na Coleção */}
+            <div className={`info-section ${alreadyInCollection ? 'already-in-collection-section' : 'add-section'}`}>
+              {alreadyInCollection ? (
+                <>
+                  <h3>✓ Filme na sua Coleção</h3>
+                  <div className="already-in-collection-info">
+                    <div className="already-badge-large">
+                      <span className="badge-icon-large">✓</span>
+                      <div className="badge-content">
+                        <span className="badge-title">Este filme já está na sua coleção!</span>
+                        <span className="badge-subtitle">Você já adicionou este filme anteriormente</span>
+                      </div>
+                    </div>
+                    <button 
+                      className="btn-view-my-movie"
+                      onClick={() => navigate(`/details/${existingMediaId}`)}
+                    >
+                      👁️ Ver Meu Filme
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3>➕ Adicionar à Minha Coleção</h3>
+                  <div className="add-controls">
+                    <label htmlFor="add-status">Escolha o status:</label>
+                    <select 
+                      id="add-status"
+                      value={addStatus} 
+                      onChange={(e) => setAddStatus(e.target.value)}
+                      disabled={adding}
+                    >
+                      <option value="quero_ver">Quero Ver</option>
+                      <option value="assistindo">Assistindo</option>
+                      <option value="rever">Quero Ver Novamente</option>
+                      <option value="ja_vi">Já Vi</option>
+                    </select>
+                    <button 
+                      className="btn-add-collection"
+                      onClick={handleAddToCollection}
+                      disabled={adding}
+                    >
+                      {adding ? '⏳ Adicionando...' : '✓ Adicionar à Minha Coleção'}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

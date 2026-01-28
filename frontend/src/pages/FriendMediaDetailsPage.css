@@ -437,3 +437,131 @@
     text-align: center;
   }
 }
+
+/* Seção quando filme já está na coleção */
+.already-in-collection-section {
+  background: linear-gradient(135deg, rgba(70, 211, 105, 0.1), rgba(70, 211, 105, 0.05));
+  border: 2px solid var(--success-color) !important;
+}
+
+.already-in-collection-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.already-badge-large {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 25px;
+  background: linear-gradient(135deg, rgba(70, 211, 105, 0.2), rgba(70, 211, 105, 0.3));
+  border: 2px solid var(--success-color);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(70, 211, 105, 0.3);
+}
+
+.badge-icon-large {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--success-color);
+  animation: checkmark-bounce-large 0.8s ease-in-out;
+  flex-shrink: 0;
+}
+
+@keyframes checkmark-bounce-large {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.3);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  75% {
+    transform: scale(1.15);
+  }
+}
+
+.badge-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.badge-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--success-color);
+  letter-spacing: 0.3px;
+}
+
+.badge-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.btn-view-my-movie {
+  padding: 15px 30px;
+  background-color: var(--success-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(70, 211, 105, 0.3);
+}
+
+.btn-view-my-movie:hover {
+  background-color: #3cb757;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(70, 211, 105, 0.4);
+}
+
+.btn-view-my-movie:active {
+  transform: translateY(0);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .already-badge-large {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+    gap: 15px;
+  }
+
+  .badge-icon-large {
+    font-size: 2.5rem;
+  }
+
+  .badge-title {
+    font-size: 1.1rem;
+  }
+
+  .badge-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .btn-view-my-movie {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .badge-icon-large {
+    font-size: 2rem;
+  }
+
+  .badge-title {
+    font-size: 1rem;
+  }
+
+  .badge-subtitle {
+    font-size: 0.85rem;
+  }
+}
