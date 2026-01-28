@@ -17,6 +17,71 @@
   font-size: 1.1rem;
 }
 
+/* Mensagem de boas-vindas */
+.welcome-message {
+  background: linear-gradient(135deg, rgba(255, 0, 150, 0.1), rgba(0, 204, 255, 0.1));
+  border: 2px solid var(--primary-color);
+  border-radius: var(--border-radius);
+  padding: 30px;
+  margin-top: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-message p {
+  color: var(--text-color);
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin: 0;
+  text-align: justify;
+}
+
+.welcome-message a {
+  color: var(--primary-color);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.welcome-message a:hover {
+  border-bottom-color: var(--primary-color);
+}
+
+/* Estado vazio */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  margin-top: 30px;
+}
+
+.empty-icon {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.add-first-link {
+  color: var(--primary-color);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  padding: 2px 4px;
+}
+
+.add-first-link:hover {
+  border-bottom-color: var(--primary-color);
+  background: rgba(255, 0, 150, 0.1);
+}
+
 .media-sections {
   margin-top: 30px;
 }
@@ -113,6 +178,27 @@
   }
 
   .home-header p {
+    font-size: 1rem;
+  }
+
+  .welcome-message {
+    padding: 20px;
+  }
+
+  .welcome-message p {
+    font-size: 1rem;
+    text-align: left;
+  }
+
+  .empty-state {
+    padding: 60px 20px;
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+  }
+
+  .empty-text {
     font-size: 1rem;
   }
 

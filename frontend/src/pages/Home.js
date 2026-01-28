@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { mediaService } from '../services/api';
 import MediaCard from '../components/MediaCard';
 import Filters from '../components/Filters';
-import { Loading, ErrorMessage, EmptyMessage } from '../components/Loading';
+import { Loading, ErrorMessage } from '../components/Loading';
 import './Home.css';
 
 function Home() {
@@ -108,15 +109,44 @@ function Home() {
     <div className="home container">
       <div className="home-header">
         <h1>Minha Coleção de Filmes e Séries</h1>
-        <p>Gerencie seus filmes e séries favoritos</p>
+        {media.length === 0 ? (
+          <div className="welcome-message">
+            <p>
+              Bem vindo! Neste site você poderá cadastrar seu histórico de produções 
+              cinematográficas, fazer sua avaliação, cadastrar suas observações e experiência, 
+              informar quais séries e filmes você está atualmente assistindo - vale mais pra 
+              séries, né? - e ainda deixar registrada aquela lista do que você pretende assistir 
+              para não esquecer e poder recorrer sempre que for assistir um filme novo ou começar 
+              uma série nova. Use sem moderação, navegue e se perca nos links cruzados de atores, 
+              atrizes e diretores. Ah, ainda rola um dashboard para você poder se surpreender com 
+              seus próprios números. Se quiser deixar um feedback depois, não exite, envie um 
+              email para <a href="mailto:julio.bisneto@gmail.com">julio.bisneto@gmail.com</a> ou 
+              uma mensagem para <a href="https://wa.me/5521984866404" target="_blank" rel="noopener noreferrer">21 984866404</a>. 
+              Abraços 🎬
+            </p>
+          </div>
+        ) : (
+          <p>Gerencie seus filmes e séries favoritos</p>
+        )}
       </div>
 
-      <Filters onFilter={handleFilter} onClear={handleClearFilters} />
+      {/* Só mostrar filtros se houver filmes cadastrados */}
+      {media.length > 0 && (
+        <Filters onFilter={handleFilter} onClear={handleClearFilters} />
+      )}
 
       {error && <ErrorMessage message={error} />}
 
       {!error && filteredMedia.length === 0 && (
-        <EmptyMessage message="Nenhum filme ou série encontrado. Adicione o primeiro!" />
+        <div className="empty-state">
+          <div className="empty-icon">📭</div>
+          <p className="empty-text">
+            Nenhum filme ou série encontrado.{' '}
+            <Link to="/add" className="add-first-link">
+              Adicione o primeiro!
+            </Link>
+          </p>
+        </div>
       )}
 
       {!error && filteredMedia.length > 0 && (
