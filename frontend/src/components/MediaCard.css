@@ -209,16 +209,37 @@
   transform: none;
 }
 
+.media-card-poster.clickable-poster {
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.media-card-poster.clickable-poster:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.media-card-poster.clickable-poster:hover .readonly-overlay {
+  opacity: 1;
+  background-color: rgba(76, 175, 80, 0.95);
+}
+
 .media-card-poster .readonly-overlay {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: rgba(76, 175, 80, 0.9);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(76, 175, 80, 0.85);
   color: white;
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-size: 0.85rem;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 0.9rem;
   font-weight: 600;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .readonly-actions {

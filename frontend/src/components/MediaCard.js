@@ -12,9 +12,50 @@ function MediaCard({ media, onDelete, readOnly = false, onAddToCollection }) {
     if (e.target.closest('button') || e.target.closest('.status-selector')) {
       return;
     }
-    // Em modo readonly, não navegar para detalhes (não tem acesso)
+    // Em modo readonly, não navegar pelo card (apenas pelo poster)
     if (!readOnly) {
       navigate(`/details/${media.id}`);
+    }
+  };
+
+  const handlePosterClick = (e) => {
+    e.stopPropagation();
+    
+    if (readOnly && onAddToCollection) {
+      // Em modo readonly, buscar tmdbId no título e ano para preview
+      // Se não tiver imdb_id, usar busca por título
+      if (media.imdb_id) {
+        // Extrair ID do IMDB (formato: tt1234567)
+        const imdbId = media.imdb_id;
+        // Redirecionar para busca TMDB via IMDB ID ou título
+        searchAndNavigateToPreview(imdbId, media.title, media.year);
+      } else {
+        // Buscar diretamente por título
+        searchAndNavigateToPreview(null, media.title, media.year);
+      }
+    } else if (!readOnly) {
+      navigate(`/details/${media.id}`);
+    }
+  };
+
+  const searchAndNavigateToPreview = async (imdbId, title, year) => {
+    try {
+      // Importar tmdbService dinamicamente
+      const tmdbService = await import('../services/tmdbService');
+      
+      // Buscar filme no TMDB
+      const searchQuery = year ? `${title} ${year}` : title;
+      const response = await tmdbService.default.searchMovies(searchQuery, 'pt-BR');
+      
+      if (response.data.results && response.data.results.length > 0) {
+        const firstResult = response.data.results[0];
+        navigate(`/preview/${firstResult.id}`);
+      } else {
+        alert(`Não foi possível encontrar "${title}" no TMDB para visualização.`);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar no TMDB:', error);
+      alert('Erro ao buscar informações do filme.');
     }
   };
 
@@ -74,13 +115,16 @@ function MediaCard({ media, onDelete, readOnly = false, onAddToCollection }) {
       className={`media-card ${media.status === 'quero_ver' ? 'highlight-quero-ver' : ''} ${readOnly ? 'readonly' : ''}`}
       onClick={handleCardClick}
     >
-      <div className="media-card-poster">
+      <div 
+        className={`media-card-poster ${readOnly ? 'clickable-poster' : ''}`}
+        onClick={handlePosterClick}
+      >
         {media.poster_url ? (
           <img src={media.poster_url} alt={media.title} />
         ) : (
           <span>🎬</span>
         )}
-        {readOnly && <div className="readonly-overlay">👀</div>}
+        {readOnly && <div className="readonly-overlay">👀 Ver Preview</div>}
       </div>
       
       <div className="media-card-content">
