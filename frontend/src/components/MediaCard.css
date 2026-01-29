@@ -364,6 +364,20 @@
   color: var(--text-color);
 }
 
+.btn-suggest-friend {
+  background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-suggest-friend:hover {
+  background: linear-gradient(135deg, #7b1fa2, #6a1b9a);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .media-card-poster {

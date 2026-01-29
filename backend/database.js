@@ -94,6 +94,65 @@ class Database {
         );
       `);
 
+      await this.pool.query(`
+        CREATE TABLE IF NOT EXISTS friendships (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          friend_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'accepted', 'rejected')),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(user_id, friend_id),
+          CHECK(user_id != friend_id)
+        );
+      `);
+
+      await this.pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_friendships_user ON friendships(user_id);
+      `);
+
+      await this.pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_friendships_friend ON friendships(friend_id);
+      `);
+
+      await this.pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_friendships_status ON friendships(status);
+      `);
+
+      await this.pool.query(`
+        CREATE TABLE IF NOT EXISTS suggestions (
+          id SERIAL PRIMARY KEY,
+          sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          receiver_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          media_id INTEGER NOT NULL REFERENCES media(id) ON DELETE CASCADE,
+          message TEXT,
+          status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'accepted', 'rejected')),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          responded_at TIMESTAMP,
+          UNIQUE(sender_id, receiver_id, media_id)
+        );
+      `);
+
+      await this.pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_suggestions_receiver_status ON suggestions(receiver_id, status);
+      `);
+
+      await this.pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_suggestions_sender ON suggestions(sender_id);
+      `);
+
+      await this.pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_suggestions_media ON suggestions(media_id);
+      `);
+
+      await this.pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_media_user_imdb ON media(user_id, imdb_id);
+      `);
+
+      await this.pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_media_user_title_year ON media(user_id, title, year);
+      `);
+
       console.log('✅ Tabelas PostgreSQL criadas ou já existem');
     } catch (error) {
       console.error('❌ Erro ao criar tabelas PostgreSQL:', error.message);
@@ -149,9 +208,51 @@ class Database {
       )
     `;
 
+    const createFriendshipsTable = `
+      CREATE TABLE IF NOT EXISTS friendships (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        friend_id INTEGER NOT NULL,
+        status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'accepted', 'rejected')),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE,
+        UNIQUE(user_id, friend_id),
+        CHECK(user_id != friend_id)
+      )
+    `;
+
+    const createSuggestionsTable = `
+      CREATE TABLE IF NOT EXISTS suggestions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sender_id INTEGER NOT NULL,
+        receiver_id INTEGER NOT NULL,
+        media_id INTEGER NOT NULL,
+        message TEXT,
+        status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'accepted', 'rejected')),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        responded_at DATETIME,
+        FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (media_id) REFERENCES media(id) ON DELETE CASCADE,
+        UNIQUE(sender_id, receiver_id, media_id)
+      )
+    `;
+
     this.db.run(createUsersTable);
     this.db.run(createProfilesTable);
     this.db.run(createMediaTable);
+    this.db.run(createFriendshipsTable);
+    this.db.run(createSuggestionsTable);
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_friendships_user ON friendships(user_id)');
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_friendships_friend ON friendships(friend_id)');
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_friendships_status ON friendships(status)');
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_suggestions_receiver_status ON suggestions(receiver_id, status)');
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_suggestions_sender ON suggestions(sender_id)');
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_suggestions_media ON suggestions(media_id)');
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_media_user_imdb ON media(user_id, imdb_id)');
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_media_user_title_year ON media(user_id, title, year)');
     console.log('✅ Tabelas SQLite criadas ou já existem');
   }
 

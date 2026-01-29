@@ -158,6 +158,7 @@ function Home() {
                     key={item.id}
                     media={item}
                     onDelete={handleDelete}
+                    showSuggestButton={true}
                   />
                 ))}
               </div>
@@ -177,6 +178,7 @@ function Home() {
                     key={item.id}
                     media={item}
                     onDelete={handleDelete}
+                    showSuggestButton={true}
                   />
                 ))}
               </div>
@@ -196,6 +198,7 @@ function Home() {
                     key={item.id}
                     media={item}
                     onDelete={handleDelete}
+                    showSuggestButton={true}
                   />
                 ))}
               </div>
@@ -215,6 +218,7 @@ function Home() {
                     key={item.id}
                     media={item}
                     onDelete={handleDelete}
+                    showSuggestButton={true}
                   />
                 ))}
               </div>

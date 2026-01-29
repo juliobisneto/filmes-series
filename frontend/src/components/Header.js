@@ -7,6 +7,7 @@ import './Header.css';
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+  const [pendingSuggestionsCount, setPendingSuggestionsCount] = useState(0);
   const location = useLocation();
   const { user, logout, isAuthenticated } = useAuth();
 
@@ -47,14 +48,28 @@ function Header() {
     }
   }, []);
 
+  const loadPendingSuggestions = useCallback(async () => {
+    try {
+      const response = await api.get('/suggestions/count');
+      setPendingSuggestionsCount(response.data.pending);
+    } catch (err) {
+      console.error('Erro ao carregar sugestões:', err);
+      setPendingSuggestionsCount(0);
+    }
+  }, []);
+
   useEffect(() => {
     if (isAuthenticated) {
       loadPendingRequests();
+      loadPendingSuggestions();
       // Atualizar a cada 30 segundos
-      const interval = setInterval(loadPendingRequests, 30000);
+      const interval = setInterval(() => {
+        loadPendingRequests();
+        loadPendingSuggestions();
+      }, 30000);
       return () => clearInterval(interval);
     }
-  }, [isAuthenticated, loadPendingRequests]);
+  }, [isAuthenticated, loadPendingRequests, loadPendingSuggestions]);
 
   // Não mostrar header nas páginas de login/registro
   if (!isAuthenticated) {
@@ -87,6 +102,12 @@ function Header() {
             👥 Amigos
             {pendingRequestsCount > 0 && (
               <span className="notification-badge">{pendingRequestsCount}</span>
+            )}
+          </Link>
+          <Link to="/suggestions" className={isActive('/suggestions')} onClick={closeMenu}>
+            💡 Sugestões
+            {pendingSuggestionsCount > 0 && (
+              <span className="notification-badge">{pendingSuggestionsCount}</span>
             )}
           </Link>
           {isAdmin() && (

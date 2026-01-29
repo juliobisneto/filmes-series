@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
+import SuggestToFriendModal from './SuggestToFriendModal';
 import './MediaCard.css';
 
-function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = false }) {
+function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = false, showSuggestButton = false }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [showAddOptions, setShowAddOptions] = useState(false);
@@ -11,6 +12,7 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState(null);
   const [addSuccess, setAddSuccess] = useState(null);
+  const [showSuggestModal, setShowSuggestModal] = useState(false);
   
   // Extrair friendId da URL se estivermos na página do amigo
   const friendId = location.pathname.match(/\/friend\/(\d+)/)?.[1];
@@ -204,6 +206,11 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
               <button className="btn-delete" onClick={handleDelete}>
                 Excluir
               </button>
+              {showSuggestButton && (
+                <button className="btn-suggest-friend" onClick={() => setShowSuggestModal(true)}>
+                  📤 Sugerir
+                </button>
+              )}
             </>
           ) : (
             <>
@@ -244,6 +251,14 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
           )}
         </div>
       </div>
+      
+      {/* Modal de sugestão */}
+      {showSuggestModal && (
+        <SuggestToFriendModal 
+          media={media} 
+          onClose={() => setShowSuggestModal(false)} 
+        />
+      )}
     </div>
   );
 }
