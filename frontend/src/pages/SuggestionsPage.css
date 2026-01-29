@@ -153,34 +153,40 @@
   gap: 25px;
 }
 
-/* Suggestion Card */
+/* Suggestion Card - Mesmas dimensões e proporções do MediaCard */
 .suggestion-card {
   background-color: var(--card-bg);
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow-light);
   overflow: hidden;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
+  transition: var(--transition);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .suggestion-card:hover {
-  box-shadow: var(--shadow-medium);
-  transform: translateY(-4px);
-  border-color: #9c27b0;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(156, 39, 176, 0.3);
 }
 
 .suggestion-card.sent {
   border-left: 4px solid #9c27b0;
 }
 
+/* Poster - mesma altura do MediaCard */
 .suggestion-poster {
   width: 100%;
-  height: 200px;
-  overflow: hidden;
-  background-color: var(--background-color-light);
+  height: 350px;
+  object-fit: cover;
+  background-color: var(--hover-color);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-secondary);
+  font-size: 3rem;
+  position: relative;
 }
 
 .suggestion-poster img {
@@ -194,28 +200,35 @@
   color: var(--text-secondary);
 }
 
+/* Content - mesma estrutura do MediaCard */
 .suggestion-content {
-  padding: 20px;
+  padding: 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .suggestion-header {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 15px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
 }
 
 .suggestion-header h3 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
+  font-weight: 700;
   color: var(--text-color);
+  line-height: 1.3;
   flex: 1;
 }
 
 .suggestion-year {
   font-size: 1rem;
   color: var(--text-secondary);
-  font-weight: 600;
+  margin-left: 8px;
+  font-weight: 400;
 }
 
 .suggestion-from,
@@ -267,7 +280,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .rating-label {
@@ -286,8 +299,16 @@
   color: #ffc107;
 }
 
+.star.filled {
+  color: #ffc107;
+}
+
+.star.empty {
+  color: var(--text-secondary);
+}
+
 .suggestion-imdb {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   font-size: 0.95rem;
   color: var(--text-secondary);
 }
@@ -339,11 +360,13 @@
   opacity: 0.8;
 }
 
-/* Actions */
+/* Actions - mesmo estilo do MediaCard */
 .suggestion-actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: auto;
+  padding-top: 15px;
 }
 
 .btn-accept {
