@@ -401,4 +401,70 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// GET - Testar configuração de email (DEBUG)
+router.get('/test-email', async (req, res) => {
+  try {
+    const user = await db.get('SELECT name, email FROM users WHERE id = ?', [req.userId]);
+    
+    // Verificar se está configurado
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      return res.json({
+        configured: false,
+        message: '⚠️ Email não configurado no servidor',
+        env_check: {
+          EMAIL_USER: !!process.env.EMAIL_USER,
+          EMAIL_PASSWORD: !!process.env.EMAIL_PASSWORD,
+          FRONTEND_URL: !!process.env.FRONTEND_URL
+        }
+      });
+    }
+
+    // Tentar enviar email de teste
+    console.log(`🧪 Testando envio de email para ${user.email}...`);
+    
+    const success = await emailService.sendMovieSuggestion(user.email, {
+      senderName: 'Sistema',
+      movieTitle: 'Email de Teste',
+      moviePoster: null,
+      movieYear: '2026',
+      movieGenre: 'Teste',
+      message: 'Este é um email de teste do sistema de notificações.'
+    });
+
+    if (success) {
+      console.log(`✅ Email de teste enviado com sucesso para ${user.email}`);
+      res.json({
+        configured: true,
+        success: true,
+        message: `✅ Email enviado com sucesso para ${user.email}. Verifique sua caixa de entrada (e spam)!`,
+        config: {
+          EMAIL_USER: process.env.EMAIL_USER,
+          EMAIL_PASSWORD: '***' + process.env.EMAIL_PASSWORD.slice(-4),
+          FRONTEND_URL: process.env.FRONTEND_URL || 'não configurado'
+        }
+      });
+    } else {
+      res.json({
+        configured: true,
+        success: false,
+        message: '❌ Erro ao enviar email. Verifique os logs do servidor.',
+        config: {
+          EMAIL_USER: process.env.EMAIL_USER,
+          EMAIL_PASSWORD: '***' + process.env.EMAIL_PASSWORD.slice(-4),
+          FRONTEND_URL: process.env.FRONTEND_URL || 'não configurado'
+        }
+      });
+    }
+
+  } catch (error) {
+    console.error('❌ Erro no teste de email:', error);
+    res.status(500).json({
+      configured: true,
+      success: false,
+      error: error.message,
+      message: '❌ Erro ao testar email: ' + error.message
+    });
+  }
+});
+
 module.exports = router;
