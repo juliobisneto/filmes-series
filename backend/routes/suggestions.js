@@ -200,8 +200,30 @@ router.put('/:id/respond', async (req, res) => {
     // Buscar a sugestão
     const suggestion = await db.get(`
       SELECT 
-        s.*,
-        m.*,
+        s.id as suggestion_id,
+        s.sender_id,
+        s.receiver_id,
+        s.media_id,
+        s.message,
+        s.status as suggestion_status,
+        s.created_at,
+        s.responded_at,
+        m.id as media_id,
+        m.title,
+        m.type,
+        m.genre,
+        m.status as media_status,
+        m.rating,
+        m.notes,
+        m.imdb_id,
+        m.imdb_rating,
+        m.poster_url,
+        m.plot,
+        m.year,
+        m.director,
+        m.actors,
+        m.runtime,
+        m.country,
         u.name as sender_name
       FROM suggestions s
       JOIN media m ON s.media_id = m.id
@@ -219,7 +241,7 @@ router.put('/:id/respond', async (req, res) => {
     }
 
     // Verificar se ainda está pendente
-    if (suggestion.status !== 'pending') {
+    if (suggestion.suggestion_status !== 'pending') {
       return res.status(400).json({ error: 'Esta sugestão já foi respondida' });
     }
 
