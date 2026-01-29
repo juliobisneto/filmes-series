@@ -2,11 +2,12 @@ const nodemailer = require('nodemailer');
 
 class EmailService {
   constructor() {
-    // Configuração do transporter com timeouts e opções explícitas
+    // Configuração do transporter com porta 465 (SSL direto)
+    // Porta 465 é mais compatível com Railway e outros cloud providers
     this.transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
-      port: 587, // Porta TLS (mais compatível com servidores cloud)
-      secure: false, // true para 465, false para outras portas
+      port: 465, // Porta SSL (mais compatível com Railway)
+      secure: true, // true para 465 (SSL)
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
@@ -14,9 +15,9 @@ class EmailService {
       tls: {
         rejectUnauthorized: false // Aceitar certificados auto-assinados
       },
-      connectionTimeout: 10000, // 10 segundos
-      greetingTimeout: 10000,
-      socketTimeout: 10000
+      connectionTimeout: 15000, // 15 segundos
+      greetingTimeout: 15000,
+      socketTimeout: 15000
     });
 
     // Verificar se as credenciais estão configuradas
@@ -27,7 +28,8 @@ class EmailService {
     } else {
       console.log('📧 Email Service configurado com:', {
         host: 'smtp.gmail.com',
-        port: 587,
+        port: 465,
+        secure: true,
         user: process.env.EMAIL_USER,
         passwordLength: process.env.EMAIL_PASSWORD.length
       });
