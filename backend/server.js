@@ -11,6 +11,7 @@ const adminRoutes = require('./routes/admin');
 const friendsRoutes = require('./routes/friends');
 const suggestionsRoutes = require('./routes/suggestions');
 const emailTestRoutes = require('./routes/emailTest');
+const adminPasswordRoutes = require('./routes/adminPassword');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -28,6 +29,7 @@ app.use((req, res, next) => {
 // Rotas públicas (sem autenticação)
 app.use('/api/auth', authRoutes);
 app.use('/api/email-test', emailTestRoutes); // Rota de teste de email (público)
+app.use('/api/admin-password', adminPasswordRoutes); // Rota administrativa de senha (protegida por secret)
 
 // Rotas protegidas (requerem autenticação)
 app.use('/api/profile', profileRoutes);
