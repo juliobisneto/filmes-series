@@ -66,8 +66,8 @@ router.post('/send', async (req, res) => {
 
     // Criar sugestão
     const result = await db.run(`
-      INSERT INTO suggestions (sender_id, receiver_id, media_id, message, status, created_at)
-      VALUES (?, ?, ?, ?, 'pending', datetime('now'))
+      INSERT INTO suggestions (sender_id, receiver_id, media_id, message, status)
+      VALUES (?, ?, ?, ?, 'pending')
     `, [senderId, receiverId, mediaId, sanitizedMessage]);
 
     // Buscar a sugestão criada com dados completos
@@ -240,7 +240,7 @@ router.put('/:id/respond', async (req, res) => {
         // Atualizar status da sugestão para rejected
         await db.run(`
           UPDATE suggestions 
-          SET status = 'rejected', responded_at = datetime('now')
+          SET status = 'rejected', responded_at = CURRENT_TIMESTAMP
           WHERE id = ?
         `, [id]);
 
@@ -260,7 +260,7 @@ router.put('/:id/respond', async (req, res) => {
         INSERT INTO media (
           user_id, title, type, genre, status, rating, notes,
           imdb_id, imdb_rating, poster_url, plot, year, director, actors, runtime, country, date_added
-        ) VALUES (?, ?, ?, ?, 'quero_ver', NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+        ) VALUES (?, ?, ?, ?, 'quero_ver', NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
       `, [
         req.userId,
         suggestion.title,
@@ -282,7 +282,7 @@ router.put('/:id/respond', async (req, res) => {
     // Atualizar status da sugestão
     await db.run(`
       UPDATE suggestions 
-      SET status = ?, responded_at = datetime('now')
+      SET status = ?, responded_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `, [newStatus, id]);
 
