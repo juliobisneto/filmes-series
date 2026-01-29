@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { Loading, ErrorMessage } from '../components/Loading';
 import './SuggestionsPage.css';
@@ -12,7 +11,6 @@ function SuggestionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState(null); // ID da sugestão sendo processada
-  const navigate = useNavigate();
 
   useEffect(() => {
     loadSuggestions();
