@@ -49,11 +49,17 @@
   box-shadow: 0 8px 20px rgba(229, 9, 20, 0.3);
 }
 
-/* Desabilitar hover quando modal está aberto */
+/* Desabilitar interações do card quando modal está aberto */
+.media-card.modal-open {
+  pointer-events: none;
+  opacity: 0.7;
+  filter: blur(2px);
+  transition: all 0.3s ease;
+}
+
 .media-card.modal-open:hover {
   transform: none;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  pointer-events: none;
 }
 
 .media-card.highlight-quero-ver:hover {

@@ -131,10 +131,12 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
   };
 
   return (
-    <div 
-      className={`media-card ${media.status === 'quero_ver' ? 'highlight-quero-ver' : ''} ${readOnly ? 'readonly' : ''} ${showSuggestModal ? 'modal-open' : ''}`}
-      onClick={handleCardClick}
-    >
+    <>
+      <div 
+        className={`media-card ${media.status === 'quero_ver' ? 'highlight-quero-ver' : ''} ${readOnly ? 'readonly' : ''} ${showSuggestModal ? 'modal-open' : ''}`}
+        onClick={showSuggestModal ? undefined : handleCardClick}
+        style={showSuggestModal ? { pointerEvents: 'none' } : {}}
+      >
       <div 
         className={`media-card-poster ${readOnly ? 'clickable-poster' : ''}`}
         onClick={handlePosterClick}
@@ -258,14 +260,14 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
         </div>
       </div>
       
-      {/* Modal de sugestão */}
+      {/* Modal de sugestão - renderizado fora do card */}
       {showSuggestModal && (
         <SuggestToFriendModal 
           media={media} 
           onClose={() => setShowSuggestModal(false)} 
         />
       )}
-    </div>
+    </>
   );
 }
 
