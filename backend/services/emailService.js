@@ -2,13 +2,21 @@ const nodemailer = require('nodemailer');
 
 class EmailService {
   constructor() {
-    // Configuração do transporter
+    // Configuração do transporter com timeouts e opções explícitas
     this.transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587, // Porta TLS (mais compatível com servidores cloud)
+      secure: false, // true para 465, false para outras portas
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
-      }
+      },
+      tls: {
+        rejectUnauthorized: false // Aceitar certificados auto-assinados
+      },
+      connectionTimeout: 10000, // 10 segundos
+      greetingTimeout: 10000,
+      socketTimeout: 10000
     });
 
     // Verificar se as credenciais estão configuradas
@@ -16,6 +24,13 @@ class EmailService {
     
     if (!this.isConfigured) {
       console.warn('⚠️  Email não configurado. Configure EMAIL_USER e EMAIL_PASSWORD no .env');
+    } else {
+      console.log('📧 Email Service configurado com:', {
+        host: 'smtp.gmail.com',
+        port: 587,
+        user: process.env.EMAIL_USER,
+        passwordLength: process.env.EMAIL_PASSWORD.length
+      });
     }
   }
 
@@ -126,12 +141,31 @@ class EmailService {
     }
 
     try {
-      await this.transporter.sendMail(mailOptions);
-      console.log(`✅ Email enviado: ${mailOptions.subject} → ${mailOptions.to}`);
+      console.log('📤 Tentando enviar email:', {
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        from: mailOptions.from
+      });
+
+      const info = await this.transporter.sendMail(mailOptions);
+      
+      console.log(`✅ Email enviado com sucesso!`, {
+        messageId: info.messageId,
+        accepted: info.accepted,
+        rejected: info.rejected,
+        response: info.response
+      });
+      
       return true;
     } catch (error) {
-      console.error('❌ Erro ao enviar email:', error.message);
-      return false;
+      console.error('❌ Erro ao enviar email:', {
+        message: error.message,
+        code: error.code,
+        command: error.command,
+        response: error.response,
+        responseCode: error.responseCode
+      });
+      throw error; // Re-throw para capturar no endpoint
     }
   }
 
