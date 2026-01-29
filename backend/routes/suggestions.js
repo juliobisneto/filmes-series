@@ -68,6 +68,7 @@ router.post('/send', async (req, res) => {
     const result = await db.run(`
       INSERT INTO suggestions (sender_id, receiver_id, media_id, message, status)
       VALUES (?, ?, ?, ?, 'pending')
+      RETURNING id
     `, [senderId, receiverId, mediaId, sanitizedMessage]);
 
     // Buscar a sugestão criada com dados completos
