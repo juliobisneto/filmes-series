@@ -259,6 +259,7 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
           )}
         </div>
       </div>
+      </div>
       
       {/* Modal de sugestão - renderizado fora do card */}
       {showSuggestModal && (
