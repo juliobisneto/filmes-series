@@ -1,38 +1,49 @@
 const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
 class EmailService {
   constructor() {
-    // Configuração do transporter com porta 465 (SSL direto)
-    // Porta 465 é mais compatível com Railway e outros cloud providers
-    this.transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465, // Porta SSL (mais compatível com Railway)
-      secure: true, // true para 465 (SSL)
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
-      },
-      tls: {
-        rejectUnauthorized: false // Aceitar certificados auto-assinados
-      },
-      connectionTimeout: 15000, // 15 segundos
-      greetingTimeout: 15000,
-      socketTimeout: 15000
-    });
-
-    // Verificar se as credenciais estão configuradas
-    this.isConfigured = !!(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD);
+    // Detectar qual método de envio usar
+    this.useResend = !!process.env.RESEND_API_KEY;
+    this.useSmtp = !!(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD);
     
-    if (!this.isConfigured) {
-      console.warn('⚠️  Email não configurado. Configure EMAIL_USER e EMAIL_PASSWORD no .env');
-    } else {
-      console.log('📧 Email Service configurado com:', {
+    if (this.useResend) {
+      // RESEND (API - funciona em ambientes cloud)
+      this.resend = new Resend(process.env.RESEND_API_KEY);
+      console.log('📧 Email Service: Usando RESEND (API)');
+    } else if (this.useSmtp) {
+      // SMTP (Gmail - pode não funcionar em Railway)
+      this.transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
-        user: process.env.EMAIL_USER,
-        passwordLength: process.env.EMAIL_PASSWORD.length
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD
+        },
+        tls: {
+          rejectUnauthorized: false
+        },
+        connectionTimeout: 15000,
+        greetingTimeout: 15000,
+        socketTimeout: 15000
       });
+      console.log('📧 Email Service: Usando SMTP (Gmail)');
+    } else {
+      console.warn('⚠️  Email não configurado. Configure RESEND_API_KEY ou (EMAIL_USER + EMAIL_PASSWORD)');
+    }
+
+    this.isConfigured = this.useResend || this.useSmtp;
+  }
+
+  // Obter email de origem (from) correto para cada método
+  getFromEmail() {
+    if (this.useResend) {
+      // Resend: usar email onboarding ou domínio verificado
+      return 'Filmes & Séries <onboarding@resend.dev>';
+    } else {
+      // SMTP: usar EMAIL_USER
+      return `"Filmes & Séries" <${process.env.EMAIL_USER}>`;
     }
   }
 
@@ -146,28 +157,44 @@ class EmailService {
       console.log('📤 Tentando enviar email:', {
         to: mailOptions.to,
         subject: mailOptions.subject,
-        from: mailOptions.from
+        method: this.useResend ? 'RESEND (API)' : 'SMTP (Gmail)'
       });
 
-      const info = await this.transporter.sendMail(mailOptions);
-      
-      console.log(`✅ Email enviado com sucesso!`, {
-        messageId: info.messageId,
-        accepted: info.accepted,
-        rejected: info.rejected,
-        response: info.response
-      });
-      
-      return true;
+      if (this.useResend) {
+        // Usar RESEND (API)
+        const result = await this.resend.emails.send({
+          from: mailOptions.from,
+          to: mailOptions.to,
+          subject: mailOptions.subject,
+          html: mailOptions.html
+        });
+        
+        console.log(`✅ Email enviado com sucesso via RESEND!`, {
+          id: result.data?.id,
+          to: mailOptions.to
+        });
+        
+        return true;
+      } else {
+        // Usar SMTP
+        const info = await this.transporter.sendMail(mailOptions);
+        
+        console.log(`✅ Email enviado com sucesso via SMTP!`, {
+          messageId: info.messageId,
+          accepted: info.accepted,
+          rejected: info.rejected
+        });
+        
+        return true;
+      }
     } catch (error) {
       console.error('❌ Erro ao enviar email:', {
+        method: this.useResend ? 'RESEND' : 'SMTP',
         message: error.message,
         code: error.code,
-        command: error.command,
-        response: error.response,
-        responseCode: error.responseCode
+        statusCode: error.statusCode
       });
-      throw error; // Re-throw para capturar no endpoint
+      throw error;
     }
   }
 
@@ -186,7 +213,7 @@ class EmailService {
     `;
 
     const mailOptions = {
-      from: `"Filmes & Séries" <${process.env.EMAIL_USER}>`,
+      from: this.getFromEmail(),
       to: to,
       subject: '👥 Nova Solicitação de Amizade - Filmes & Séries',
       html: this.getEmailTemplate(content)
@@ -215,7 +242,7 @@ class EmailService {
     `;
 
     const mailOptions = {
-      from: `"Filmes & Séries" <${process.env.EMAIL_USER}>`,
+      from: this.getFromEmail(),
       to: to,
       subject: '🎉 Solicitação Aceita - Filmes & Séries',
       html: this.getEmailTemplate(content)
@@ -260,7 +287,7 @@ class EmailService {
     `;
 
     const mailOptions = {
-      from: `"Filmes & Séries" <${process.env.EMAIL_USER}>`,
+      from: this.getFromEmail(),
       to: to,
       subject: `💡 ${senderName} sugeriu: ${movieTitle}`,
       html: this.getEmailTemplate(content)
@@ -290,7 +317,7 @@ class EmailService {
     `;
 
     const mailOptions = {
-      from: `"Filmes & Séries" <${process.env.EMAIL_USER}>`,
+      from: this.getFromEmail(),
       to: to,
       subject: `🎉 Sugestão Aceita: ${movieTitle}`,
       html: this.getEmailTemplate(content)
