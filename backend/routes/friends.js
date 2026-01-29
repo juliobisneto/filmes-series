@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../database');
 const { authMiddleware } = require('../middleware/auth');
+const emailService = require('../services/emailService');
 
 // Proteger todas as rotas de friends
 router.use(authMiddleware);
@@ -85,7 +86,7 @@ router.post('/request', async (req, res) => {
     }
 
     // Verificar se o usuário amigo existe
-    const friend = await db.get('SELECT id, name FROM users WHERE id = ?', [friendId]);
+    const friend = await db.get('SELECT id, name, email FROM users WHERE id = ?', [friendId]);
     if (!friend) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
@@ -106,11 +107,20 @@ router.post('/request', async (req, res) => {
       }
     }
 
+    // Buscar dados do usuário que está enviando
+    const sender = await db.get('SELECT name, email FROM users WHERE id = ?', [req.userId]);
+
     // Criar solicitação
     await db.run(`
       INSERT INTO friendships (user_id, friend_id, status)
       VALUES (?, ?, 'pending')
     `, [req.userId, friendId]);
+
+    // Enviar email de notificação (não bloquear a resposta)
+    emailService.sendFriendRequest(friend.email, {
+      senderName: sender.name,
+      senderEmail: sender.email
+    }).catch(err => console.error('Erro ao enviar email de solicitação:', err));
 
     res.json({
       success: true,
@@ -192,7 +202,7 @@ router.post('/respond', async (req, res) => {
 
     // Verificar se a solicitação existe e é para o usuário atual
     const request = await db.get(`
-      SELECT f.*, u.name as sender_name
+      SELECT f.*, u.name as sender_name, u.email as sender_email
       FROM friendships f
       JOIN users u ON f.user_id = u.id
       WHERE f.id = ? AND f.friend_id = ? AND f.status = 'pending'
@@ -209,6 +219,15 @@ router.post('/respond', async (req, res) => {
       SET status = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `, [newStatus, requestId]);
+
+    // Se aceitar, enviar email para quem enviou a solicitação
+    if (action === 'accept') {
+      const accepter = await db.get('SELECT name FROM users WHERE id = ?', [req.userId]);
+      
+      emailService.sendFriendAccepted(request.sender_email, {
+        accepterName: accepter.name
+      }).catch(err => console.error('Erro ao enviar email de aceitação:', err));
+    }
 
     const message = action === 'accept'
       ? `Você e ${request.sender_name} agora são amigos!`

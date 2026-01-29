@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../database');
 const { authMiddleware } = require('../middleware/auth');
+const emailService = require('../services/emailService');
 
 // Proteger todas as rotas
 router.use(authMiddleware);
@@ -23,7 +24,7 @@ router.post('/send', async (req, res) => {
     }
 
     // Verificar se receiver existe
-    const receiver = await db.get('SELECT id FROM users WHERE id = ?', [receiverId]);
+    const receiver = await db.get('SELECT id, name, email FROM users WHERE id = ?', [receiverId]);
     if (!receiver) {
       return res.status(404).json({ error: 'Usuário destinatário não encontrado' });
     }
@@ -64,6 +65,9 @@ router.post('/send', async (req, res) => {
     // Sanitizar mensagem (max 500 chars)
     const sanitizedMessage = message ? message.substring(0, 500) : null;
 
+    // Buscar dados do sender
+    const sender = await db.get('SELECT name FROM users WHERE id = ?', [senderId]);
+
     // Criar sugestão
     const result = await db.run(`
       INSERT INTO suggestions (sender_id, receiver_id, media_id, message, status)
@@ -84,6 +88,16 @@ router.post('/send', async (req, res) => {
       JOIN media m ON s.media_id = m.id
       WHERE s.id = ?
     `, [result.id]);
+
+    // Enviar email de notificação (não bloquear a resposta)
+    emailService.sendMovieSuggestion(receiver.email, {
+      senderName: sender.name,
+      movieTitle: media.title,
+      moviePoster: media.poster_url,
+      movieYear: media.year,
+      movieGenre: media.genre,
+      message: sanitizedMessage
+    }).catch(err => console.error('Erro ao enviar email de sugestão:', err));
 
     res.json({ 
       success: true, 
@@ -224,7 +238,8 @@ router.put('/:id/respond', async (req, res) => {
         m.actors,
         m.runtime,
         m.country,
-        u.name as sender_name
+        u.name as sender_name,
+        u.email as sender_email
       FROM suggestions s
       JOIN media m ON s.media_id = m.id
       JOIN users u ON s.sender_id = u.id
@@ -308,6 +323,17 @@ router.put('/:id/respond', async (req, res) => {
       SET status = ?, responded_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `, [newStatus, id]);
+
+    // Se aceitar, enviar email para quem sugeriu
+    if (action === 'accept') {
+      const accepter = await db.get('SELECT name FROM users WHERE id = ?', [req.userId]);
+      
+      emailService.sendSuggestionAccepted(suggestion.sender_email, {
+        accepterName: accepter.name,
+        movieTitle: suggestion.title,
+        movieYear: suggestion.year
+      }).catch(err => console.error('Erro ao enviar email de sugestão aceita:', err));
+    }
 
     const message = action === 'accept' 
       ? `Filme "${suggestion.title}" adicionado à sua coleção!`
