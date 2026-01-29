@@ -132,7 +132,7 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
 
   return (
     <div 
-      className={`media-card ${media.status === 'quero_ver' ? 'highlight-quero-ver' : ''} ${readOnly ? 'readonly' : ''}`}
+      className={`media-card ${media.status === 'quero_ver' ? 'highlight-quero-ver' : ''} ${readOnly ? 'readonly' : ''} ${showSuggestModal ? 'modal-open' : ''}`}
       onClick={handleCardClick}
     >
       <div 
@@ -207,7 +207,13 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
                 Excluir
               </button>
               {showSuggestButton && (
-                <button className="btn-suggest-friend" onClick={() => setShowSuggestModal(true)}>
+                <button 
+                  className="btn-suggest-friend" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowSuggestModal(true);
+                  }}
+                >
                   📤 Sugerir
                 </button>
               )}
