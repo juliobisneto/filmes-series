@@ -1,21 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import SuggestToFriendModal from './SuggestToFriendModal';
 import './MediaCard.css';
 
 function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = false, showSuggestButton = false }) {
   const navigate = useNavigate();
-  const location = useLocation();
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [addStatus, setAddStatus] = useState('quero_ver');
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState(null);
   const [addSuccess, setAddSuccess] = useState(null);
   const [showSuggestModal, setShowSuggestModal] = useState(false);
-  
-  // Extrair friendId da URL se estivermos na página do amigo
-  const friendId = location.pathname.match(/\/friend\/(\d+)/)?.[1];
 
   const handleCardClick = (e) => {
     if (e.target.closest('button') || e.target.closest('.add-to-collection-options')) {
@@ -23,13 +19,6 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
     }
     if (!readOnly) {
       navigate(`/details/${media.id}`);
-    }
-  };
-
-  const handlePosterClick = () => {
-    if (readOnly && friendId) {
-      // Navegar para a página de detalhes do filme do amigo
-      navigate(`/friend/${friendId}/media/${media.id}`);
     }
   };
 
@@ -137,10 +126,7 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
         onClick={showSuggestModal ? undefined : handleCardClick}
         style={showSuggestModal ? { pointerEvents: 'none' } : {}}
       >
-      <div 
-        className={`media-card-poster ${readOnly ? 'clickable-poster' : ''}`}
-        onClick={handlePosterClick}
-      >
+      <div className="media-card-poster">
         {media.poster_url ? (
           <img src={media.poster_url} alt={media.title} />
         ) : (
