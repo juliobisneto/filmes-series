@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import SuggestToFriendModal from './SuggestToFriendModal';
 import './MediaCard.css';
 
 function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = false, showSuggestButton = false }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [addStatus, setAddStatus] = useState('quero_ver');
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState(null);
   const [addSuccess, setAddSuccess] = useState(null);
   const [showSuggestModal, setShowSuggestModal] = useState(false);
+  const [isInCollection, setIsInCollection] = useState(alreadyInCollection); // Controlar estado local
+  
+  // Extrair friendId da URL se estivermos na página do amigo
+  const friendId = location.pathname.match(/\/friend\/(\d+)/)?.[1];
 
   const handleCardClick = (e) => {
     if (e.target.closest('button') || e.target.closest('.add-to-collection-options')) {
@@ -19,6 +24,14 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
     }
     if (!readOnly) {
       navigate(`/details/${media.id}`);
+    }
+  };
+
+  const handlePosterClick = (e) => {
+    e.stopPropagation();
+    if (readOnly && friendId) {
+      // Navegar para a página de detalhes do filme do amigo
+      navigate(`/friend/${friendId}/media/${media.id}`);
     }
   };
 
@@ -55,6 +68,9 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
 
       await api.post('/media', mediaToAdd);
       setAddSuccess('Filme adicionado com sucesso!');
+      
+      // Marcar como adicionado à coleção
+      setIsInCollection(true);
       
       // Fechar o modal após 1.5 segundos
       setTimeout(() => {
@@ -126,7 +142,10 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
         onClick={showSuggestModal ? undefined : handleCardClick}
         style={showSuggestModal ? { pointerEvents: 'none' } : {}}
       >
-      <div className="media-card-poster">
+      <div 
+        className={`media-card-poster ${readOnly ? 'clickable-poster' : ''}`}
+        onClick={handlePosterClick}
+      >
         {media.poster_url ? (
           <img src={media.poster_url} alt={media.title} />
         ) : (
@@ -208,7 +227,7 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
             </>
           ) : (
             <>
-              {alreadyInCollection ? (
+              {isInCollection ? (
                 // Filme já está na sua coleção - mostrar badge
                 <div className="already-in-collection-badge">
                   <span className="badge-icon">✓</span>
