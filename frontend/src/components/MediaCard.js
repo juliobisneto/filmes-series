@@ -32,6 +32,9 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
     if (readOnly && friendId) {
       // Navegar para a página de detalhes do filme do amigo
       navigate(`/friend/${friendId}/media/${media.id}`);
+    } else if (!readOnly) {
+      // Navegar para a página de detalhes do próprio filme
+      navigate(`/details/${media.id}`);
     }
   };
 
@@ -143,7 +146,7 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
         style={showSuggestModal ? { pointerEvents: 'none' } : {}}
       >
       <div 
-        className={`media-card-poster ${readOnly ? 'clickable-poster' : ''}`}
+        className="media-card-poster clickable-poster"
         onClick={handlePosterClick}
       >
         {media.poster_url ? (
