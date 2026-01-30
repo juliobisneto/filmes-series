@@ -66,11 +66,12 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
 
       const response = await api.post('/media', mediaToAdd);
       setAddSuccess('Filme adicionado com sucesso!');
-      setShowAddOptions(false);
-      // Optionally, navigate to the added movie
+      
+      // Fechar o modal após 1.5 segundos
       setTimeout(() => {
-        navigate(`/details/${response.data.data.id}`);
-      }, 1000);
+        setShowAddOptions(false);
+        setAddSuccess(null);
+      }, 1500);
     } catch (err) {
       console.error('Erro ao adicionar filme:', err);
       console.error('Erro response:', err.response);
@@ -87,11 +88,10 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
           };
           const statusText = statusLabels[existingMedia.status] || existingMedia.status || 'status desconhecido';
           
-          if (window.confirm(`"${media.title}" já existe na sua coleção com o status "${statusText}". Deseja visualizá-lo?`)) {
-            navigate(`/details/${existingMedia.id}`);
-          }
+          setAddError(`"${media.title}" já existe na sua coleção com o status "${statusText}".`);
+        } else {
+          setAddError('Filme já existe na sua coleção.');
         }
-        setAddError('Filme já existe na sua coleção.');
       } else {
         setAddError('Erro ao adicionar filme à sua coleção.');
       }
