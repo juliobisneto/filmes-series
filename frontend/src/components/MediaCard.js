@@ -64,7 +64,7 @@ function MediaCard({ media, onDelete, readOnly = false, alreadyInCollection = fa
         date_watched: addStatus === 'ja_vi' ? new Date().toISOString().split('T')[0] : undefined,
       };
 
-      const response = await api.post('/media', mediaToAdd);
+      await api.post('/media', mediaToAdd);
       setAddSuccess('Filme adicionado com sucesso!');
       
       // Fechar o modal após 1.5 segundos
