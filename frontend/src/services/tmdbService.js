@@ -41,6 +41,24 @@ export const getMovieDetails = async (tmdbId, language = 'pt-BR') => {
 };
 
 /**
+ * Obtém detalhes completos de uma série de TV
+ * @param {number} tmdbId - ID da série no TMDB
+ * @param {string} language - Idioma (padrão: pt-BR)
+ * @returns {Promise} Detalhes da série
+ */
+export const getTvShowDetails = async (tmdbId, language = 'pt-BR') => {
+  try {
+    const response = await api.get(`/tmdb/tv/${tmdbId}`, {
+      params: { language }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar detalhes da série no TMDB:', error);
+    throw error;
+  }
+};
+
+/**
  * Busca pessoas (atores/diretores) por nome
  * @param {string} query - Nome da pessoa
  * @param {string} language - Idioma (padrão: pt-BR)
@@ -97,6 +115,7 @@ export const searchHybrid = async (query, language = 'pt-BR') => {
 const tmdbService = {
   searchMovie,
   getMovieDetails,
+  getTvShowDetails,
   searchPerson,
   getPersonMovieCredits,
   searchHybrid

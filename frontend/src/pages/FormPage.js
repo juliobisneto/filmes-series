@@ -160,15 +160,53 @@ function FormPage() {
 
   const handleSelectIMDB = async (result) => {
     try {
+      // #region agent log
+      console.log('[DEBUG FormPage.js:161] handleSelectIMDB called:', JSON.stringify({
+        source: result.source,
+        type: result.Type,
+        tmdb_id: result.tmdb_id,
+        title: result.Title,
+        hypothesisId: 'F,G,H',
+        runId: 'pre-fix'
+      }));
+      // #endregion
+      
       setLoading(true);
       setError(null);
       
       let details;
       
       if (result.source === 'tmdb') {
+        // #region agent log
+        console.log('[DEBUG FormPage.js:170] Fetching TMDB details for:', JSON.stringify({
+          tmdb_id: result.tmdb_id,
+          type: result.Type,
+          endpoint: result.Type === 'series' ? `/tmdb/tv/${result.tmdb_id}` : `/tmdb/movie/${result.tmdb_id}`,
+          hypothesisId: 'H',
+          runId: 'post-fix'
+        }));
+        // #endregion
+        
         // Se veio do TMDB, buscar detalhes completos no TMDB
-        const response = await tmdbService.getMovieDetails(result.tmdb_id, 'pt-BR');
+        // Verificar se é filme ou série para chamar o endpoint correto
+        let response;
+        if (result.Type === 'series') {
+          response = await tmdbService.getTvShowDetails(result.tmdb_id, 'pt-BR');
+        } else {
+          response = await tmdbService.getMovieDetails(result.tmdb_id, 'pt-BR');
+        }
         details = response.data;
+        
+        // #region agent log
+        console.log('[DEBUG FormPage.js:180] TMDB details received:', JSON.stringify({
+          title: details.title_pt || details.title,
+          type: details.type,
+          tmdb_id: details.tmdb_id,
+          year: details.year,
+          hypothesisId: 'H',
+          runId: 'post-fix'
+        }));
+        // #endregion
         
         // Preencher formulário com dados do TMDB
         setFormData(prev => ({
