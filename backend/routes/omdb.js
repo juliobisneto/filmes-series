@@ -45,7 +45,7 @@ router.get('/search', checkApiKey, async (req, res) => {
     }
 
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/8d81f0c1-0e99-45e0-a8ba-436ff3eb004a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'omdb.js:48',message:'OMDb search request params',data:{title,type,year,fullParams:params},timestamp:Date.now(),hypothesisId:'A,B,C',runId:'pre-fix'})}).catch(()=>{});
+    console.log('[DEBUG omdb.js:48] OMDb search request params:', JSON.stringify({title,type,year,fullParams:params,hypothesisId:'A,B,C',runId:'pre-fix'}));
     // #endregion
 
     // Buscar primeira página (10 resultados)
@@ -54,7 +54,7 @@ router.get('/search', checkApiKey, async (req, res) => {
     });
 
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/8d81f0c1-0e99-45e0-a8ba-436ff3eb004a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'omdb.js:55',message:'OMDb search response',data:{responseStatus:page1Response.data.Response,error:page1Response.data.Error,totalResults:page1Response.data.totalResults,resultsCount:page1Response.data.Search?.length,firstResult:page1Response.data.Search?.[0]},timestamp:Date.now(),hypothesisId:'A,D',runId:'pre-fix'})}).catch(()=>{});
+    console.log('[DEBUG omdb.js:55] OMDb search response:', JSON.stringify({responseStatus:page1Response.data.Response,error:page1Response.data.Error,totalResults:page1Response.data.totalResults,resultsCount:page1Response.data.Search?.length,firstResult:page1Response.data.Search?.[0],hypothesisId:'A,D',runId:'pre-fix'}));
     // #endregion
 
     if (page1Response.data.Response === 'False') {
@@ -108,13 +108,13 @@ router.get('/:imdbId', checkApiKey, async (req, res) => {
     };
 
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/8d81f0c1-0e99-45e0-a8ba-436ff3eb004a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'omdb.js:102',message:'OMDb ID lookup request',data:{imdbId,fullParams:params},timestamp:Date.now(),hypothesisId:'E',runId:'pre-fix'})}).catch(()=>{});
+    console.log('[DEBUG omdb.js:102] OMDb ID lookup request:', JSON.stringify({imdbId,fullParams:params,hypothesisId:'E',runId:'pre-fix'}));
     // #endregion
 
     const response = await axios.get(OMDB_BASE_URL, { params });
 
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/8d81f0c1-0e99-45e0-a8ba-436ff3eb004a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'omdb.js:108',message:'OMDb ID lookup response',data:{responseStatus:response.data.Response,error:response.data.Error,title:response.data.Title,year:response.data.Year,type:response.data.Type},timestamp:Date.now(),hypothesisId:'E',runId:'pre-fix'})}).catch(()=>{});
+    console.log('[DEBUG omdb.js:108] OMDb ID lookup response:', JSON.stringify({responseStatus:response.data.Response,error:response.data.Error,title:response.data.Title,year:response.data.Year,type:response.data.Type,hypothesisId:'E',runId:'pre-fix'}));
     // #endregion
 
     if (response.data.Response === 'False') {
@@ -177,13 +177,13 @@ router.get('/title/:title', checkApiKey, async (req, res) => {
     }
 
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/8d81f0c1-0e99-45e0-a8ba-436ff3eb004a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'omdb.js:163',message:'OMDb title search request',data:{title,year,type,fullParams:params},timestamp:Date.now(),hypothesisId:'B,C',runId:'pre-fix'})}).catch(()=>{});
+    console.log('[DEBUG omdb.js:163] OMDb title search request:', JSON.stringify({title,year,type,fullParams:params,hypothesisId:'B,C',runId:'pre-fix'}));
     // #endregion
 
     const response = await axios.get(OMDB_BASE_URL, { params });
 
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/8d81f0c1-0e99-45e0-a8ba-436ff3eb004a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'omdb.js:169',message:'OMDb title search response',data:{responseStatus:response.data.Response,error:response.data.Error,title:response.data.Title,year:response.data.Year,type:response.data.Type,imdbId:response.data.imdbID},timestamp:Date.now(),hypothesisId:'B,C',runId:'pre-fix'})}).catch(()=>{});
+    console.log('[DEBUG omdb.js:169] OMDb title search response:', JSON.stringify({responseStatus:response.data.Response,error:response.data.Error,title:response.data.Title,year:response.data.Year,type:response.data.Type,imdbId:response.data.imdbID,hypothesisId:'B,C',runId:'pre-fix'}));
     // #endregion
 
     if (response.data.Response === 'False') {
