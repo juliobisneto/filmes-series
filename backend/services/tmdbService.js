@@ -6,10 +6,178 @@ const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 /**
  * Serviço para integração com TMDB API
  * Funcionalidades:
- * - Busca de filmes em português
+ * - Busca de filmes e séries em português
  * - Busca de pessoas (atores/diretores)
- * - Obter detalhes completos de filmes
+ * - Obter detalhes completos de filmes e séries
  */
+
+/**
+ * Busca séries de TV por título (suporta português e outros idiomas)
+ * @param {string} query - Título da série (pode ser em português)
+ * @param {string} language - Idioma (padrão: pt-BR)
+ * @returns {Promise<Array>} Lista de séries encontradas
+ */
+async function searchTvShow(query, language = 'pt-BR') {
+  try {
+    if (!TMDB_API_KEY || TMDB_API_KEY === 'your_tmdb_api_key_here') {
+      throw new Error('TMDB_API_KEY não configurada');
+    }
+
+    const response = await axios.get(`${TMDB_BASE_URL}/search/tv`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        query: query,
+        language: language,
+        include_adult: false
+      }
+    });
+
+    return response.data.results.map(show => ({
+      tmdb_id: show.id,
+      imdb_id: null, // Será buscado depois se necessário
+      title: show.name, // TV shows usam 'name' ao invés de 'title'
+      original_title: show.original_name,
+      title_pt: show.name, // Título em português (se language=pt-BR)
+      year: show.first_air_date ? show.first_air_date.split('-')[0] : null,
+      poster: show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : null,
+      plot: show.overview || null,
+      vote_average: show.vote_average || null,
+      vote_count: show.vote_count || null,
+      first_air_date: show.first_air_date || null,
+      type: 'series' // Identifica como série
+    }));
+  } catch (error) {
+    console.error('Erro ao buscar série no TMDB:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Obtém detalhes completos de uma série de TV por TMDB ID
+ * Inclui: créditos (atores, criadores), países, etc
+ * @param {number} tmdbId - ID da série no TMDB
+ * @param {string} language - Idioma (padrão: pt-BR)
+ * @returns {Promise<Object>} Detalhes completos da série
+ */
+async function getTvShowDetails(tmdbId, language = 'pt-BR') {
+  try {
+    if (!TMDB_API_KEY || TMDB_API_KEY === 'your_tmdb_api_key_here') {
+      throw new Error('TMDB_API_KEY não configurada');
+    }
+
+    const response = await axios.get(`${TMDB_BASE_URL}/tv/${tmdbId}`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        language: language,
+        append_to_response: 'credits,external_ids'
+      }
+    });
+
+    const show = response.data;
+    const credits = show.credits || {};
+    const cast = credits.cast || [];
+    
+    // Pega os criadores
+    const creators = show.created_by ? show.created_by.map(c => c.name).join(', ') : null;
+    
+    // Pega os primeiros 5 atores
+    const actors = cast.slice(0, 5).map(actor => actor.name).join(', ');
+
+    return {
+      tmdb_id: show.id,
+      imdb_id: show.external_ids?.imdb_id || null,
+      title: show.name,
+      original_title: show.original_name,
+      title_pt: show.name, // Título traduzido se language=pt-BR
+      year: show.first_air_date ? show.first_air_date.split('-')[0] : null,
+      first_air_date: show.first_air_date || null,
+      last_air_date: show.last_air_date || null,
+      poster: show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : null,
+      backdrop: show.backdrop_path ? `https://image.tmdb.org/t/p/original${show.backdrop_path}` : null,
+      plot: show.overview || null,
+      genres: show.genres ? show.genres.map(g => g.name).join(', ') : null,
+      number_of_seasons: show.number_of_seasons || null,
+      number_of_episodes: show.number_of_episodes || null,
+      episode_run_time: show.episode_run_time && show.episode_run_time.length > 0 ? `${show.episode_run_time[0]} min` : null,
+      vote_average: show.vote_average || null,
+      vote_count: show.vote_count || null,
+      country: show.origin_country ? show.origin_country.join(', ') : null,
+      director: creators, // Para séries, usamos 'creators' ao invés de 'director'
+      actors: actors || null,
+      original_language: show.original_language || null,
+      type: 'series'
+    };
+  } catch (error) {
+    console.error('Erro ao buscar detalhes da série no TMDB:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Busca híbrida - Busca filmes E séries simultaneamente
+ * @param {string} query - Título a buscar
+ * @param {string} language - Idioma (padrão: pt-BR)
+ * @returns {Promise<Array>} Lista combinada de filmes e séries
+ */
+async function searchMulti(query, language = 'pt-BR') {
+  try {
+    if (!TMDB_API_KEY || TMDB_API_KEY === 'your_tmdb_api_key_here') {
+      throw new Error('TMDB_API_KEY não configurada');
+    }
+
+    const response = await axios.get(`${TMDB_BASE_URL}/search/multi`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        query: query,
+        language: language,
+        include_adult: false
+      }
+    });
+
+    // Filtrar apenas filmes e séries (ignorar pessoas)
+    const results = response.data.results
+      .filter(item => item.media_type === 'movie' || item.media_type === 'tv')
+      .map(item => {
+        if (item.media_type === 'movie') {
+          return {
+            tmdb_id: item.id,
+            imdb_id: null,
+            title: item.title,
+            original_title: item.original_title,
+            title_pt: item.title,
+            year: item.release_date ? item.release_date.split('-')[0] : null,
+            poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : null,
+            plot: item.overview || null,
+            vote_average: item.vote_average || null,
+            vote_count: item.vote_count || null,
+            release_date: item.release_date || null,
+            type: 'movie'
+          };
+        } else {
+          // TV Show
+          return {
+            tmdb_id: item.id,
+            imdb_id: null,
+            title: item.name,
+            original_title: item.original_name,
+            title_pt: item.name,
+            year: item.first_air_date ? item.first_air_date.split('-')[0] : null,
+            poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : null,
+            plot: item.overview || null,
+            vote_average: item.vote_average || null,
+            vote_count: item.vote_count || null,
+            first_air_date: item.first_air_date || null,
+            type: 'series'
+          };
+        }
+      });
+
+    return results;
+  } catch (error) {
+    console.error('Erro ao buscar no TMDB (multi):', error.message);
+    throw error;
+  }
+}
 
 /**
  * Busca filmes por título (suporta português e outros idiomas)
@@ -43,7 +211,8 @@ async function searchMovie(query, language = 'pt-BR') {
       plot: movie.overview || null,
       vote_average: movie.vote_average || null,
       vote_count: movie.vote_count || null,
-      release_date: movie.release_date || null
+      release_date: movie.release_date || null,
+      type: 'movie' // Identifica como filme
     }));
   } catch (error) {
     console.error('Erro ao buscar filme no TMDB:', error.message);
@@ -193,7 +362,10 @@ async function getPersonMovieCredits(personId, language = 'pt-BR') {
 
 module.exports = {
   searchMovie,
+  searchTvShow,
+  searchMulti,
   getMovieDetails,
+  getTvShowDetails,
   searchPerson,
   getPersonMovieCredits
 };

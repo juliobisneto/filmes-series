@@ -3,6 +3,98 @@ const router = express.Router();
 const tmdbService = require('../services/tmdbService');
 
 /**
+ * Rota: Buscar séries por título (suporta português!)
+ * GET /api/tmdb/search/tv?query=Unfamiliar
+ * GET /api/tmdb/search/tv?query=Breaking Bad&language=en-US
+ */
+router.get('/search/tv', async (req, res) => {
+  try {
+    const { query, language } = req.query;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        message: 'O parâmetro "query" é obrigatório'
+      });
+    }
+
+    const results = await tmdbService.searchTvShow(query, language || 'pt-BR');
+
+    res.json({
+      success: true,
+      count: results.length,
+      data: results
+    });
+  } catch (error) {
+    console.error('Erro na busca de séries TMDB:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao buscar séries no TMDB',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Rota: Buscar filmes E séries simultaneamente (busca multi)
+ * GET /api/tmdb/search/multi?query=Unfamiliar
+ * GET /api/tmdb/search/multi?query=Matrix&language=en-US
+ */
+router.get('/search/multi', async (req, res) => {
+  try {
+    const { query, language } = req.query;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        message: 'O parâmetro "query" é obrigatório'
+      });
+    }
+
+    const results = await tmdbService.searchMulti(query, language || 'pt-BR');
+
+    res.json({
+      success: true,
+      count: results.length,
+      data: results
+    });
+  } catch (error) {
+    console.error('Erro na busca multi TMDB:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao buscar no TMDB',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Rota: Obter detalhes completos de uma série por TMDB ID
+ * GET /api/tmdb/tv/:tmdbId
+ * GET /api/tmdb/tv/:tmdbId?language=en-US
+ */
+router.get('/tv/:tmdbId', async (req, res) => {
+  try {
+    const { tmdbId } = req.params;
+    const { language } = req.query;
+
+    const showDetails = await tmdbService.getTvShowDetails(tmdbId, language || 'pt-BR');
+
+    res.json({
+      success: true,
+      data: showDetails
+    });
+  } catch (error) {
+    console.error('Erro ao buscar detalhes da série TMDB:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao buscar detalhes da série no TMDB',
+      error: error.message
+    });
+  }
+});
+
+/**
  * Rota: Buscar filmes por título (suporta português!)
  * GET /api/tmdb/search/movie?query=De Volta Para o Futuro
  * GET /api/tmdb/search/movie?query=Back to the Future&language=en-US
@@ -120,10 +212,10 @@ router.get('/person/:personId/movies', async (req, res) => {
 });
 
 /**
- * Rota: Busca híbrida - Busca no TMDB e enriquece com OMDb
- * GET /api/tmdb/search/hybrid?query=De Volta Para o Futuro
+ * Rota: Busca híbrida - Busca filmes E séries no TMDB com detalhes completos
+ * GET /api/tmdb/search/hybrid?query=Unfamiliar
  * 
- * Retorna resultados do TMDB com informações adicionais do OMDb quando disponível
+ * Retorna resultados do TMDB (filmes + séries) com detalhes enriquecidos
  */
 router.get('/search/hybrid', async (req, res) => {
   try {
@@ -136,19 +228,26 @@ router.get('/search/hybrid', async (req, res) => {
       });
     }
 
-    // 1. Busca no TMDB (aceita português)
-    const tmdbResults = await tmdbService.searchMovie(query, language || 'pt-BR');
+    // 1. Busca multi no TMDB (filmes + séries, aceita português)
+    const tmdbResults = await tmdbService.searchMulti(query, language || 'pt-BR');
 
-    // 2. Para os primeiros resultados, tenta enriquecer com OMDb
+    // 2. Para os primeiros resultados, tenta enriquecer com detalhes completos
     const enrichedResults = await Promise.all(
-      tmdbResults.slice(0, 5).map(async (movie) => {
+      tmdbResults.slice(0, 5).map(async (item) => {
         try {
-          // Se tem tmdb_id, pega os detalhes completos (inclui imdb_id)
-          const details = await tmdbService.getMovieDetails(movie.tmdb_id, language || 'pt-BR');
-          return { ...movie, ...details };
+          // Se é filme, busca detalhes de filme
+          if (item.type === 'movie') {
+            const details = await tmdbService.getMovieDetails(item.tmdb_id, language || 'pt-BR');
+            return { ...item, ...details };
+          } else if (item.type === 'series') {
+            // Se é série, busca detalhes de série
+            const details = await tmdbService.getTvShowDetails(item.tmdb_id, language || 'pt-BR');
+            return { ...item, ...details };
+          }
+          return item;
         } catch (error) {
           // Se falhar, retorna o resultado básico do TMDB
-          return movie;
+          return item;
         }
       })
     );
@@ -160,7 +259,7 @@ router.get('/search/hybrid', async (req, res) => {
       success: true,
       count: allResults.length,
       data: allResults,
-      source: 'TMDB (híbrido com detalhes completos)'
+      source: 'TMDB Multi (filmes + séries com detalhes completos)'
     });
   } catch (error) {
     console.error('Erro na busca híbrida TMDB:', error.message);
