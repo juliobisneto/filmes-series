@@ -120,6 +120,7 @@ function AdminPage() {
                 <th>#</th>
                 <th>Nome</th>
                 <th>Total de Filmes</th>
+                <th>Último Login</th>
                 <th>Membro Desde</th>
                 <th>Tipo</th>
               </tr>
@@ -135,6 +136,7 @@ function AdminPage() {
                   <td>
                     <span className="movie-count">{user.totalMovies}</span>
                   </td>
+                  <td>{formatDate(user.lastLogin)}</td>
                   <td>{formatDate(user.memberSince)}</td>
                   <td>
                     {user.totalMovies === 0 ? (

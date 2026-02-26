@@ -53,7 +53,8 @@ class Database {
           email VARCHAR(255) UNIQUE NOT NULL,
           password VARCHAR(255) NOT NULL,
           name VARCHAR(255),
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          last_login TIMESTAMP
         );
       `);
 
@@ -154,6 +155,7 @@ class Database {
       `);
 
       console.log('✅ Tabelas PostgreSQL criadas ou já existem');
+      await this.pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login TIMESTAMP DEFAULT NULL');
     } catch (error) {
       console.error('❌ Erro ao criar tabelas PostgreSQL:', error.message);
     }
@@ -166,7 +168,8 @@ class Database {
         name TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        last_login DATETIME
       )
     `;
 
@@ -251,8 +254,11 @@ class Database {
     this.db.run('CREATE INDEX IF NOT EXISTS idx_suggestions_receiver_status ON suggestions(receiver_id, status)');
     this.db.run('CREATE INDEX IF NOT EXISTS idx_suggestions_sender ON suggestions(sender_id)');
     this.db.run('CREATE INDEX IF NOT EXISTS idx_suggestions_media ON suggestions(media_id)');
-    this.db.run('CREATE INDEX IF NOT EXISTS idx_media_user_imdb ON media(user_id, imdb_id)');
     this.db.run('CREATE INDEX IF NOT EXISTS idx_media_user_title_year ON media(user_id, title, year)');
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_media_user_imdb ON media(user_id, imdb_id)');
+    this.db.run("ALTER TABLE users ADD COLUMN last_login DATETIME", (err) => {
+      if (err && !err.message.includes('duplicate column')) console.error('Erro ao adicionar last_login:', err.message);
+    });
     console.log('✅ Tabelas SQLite criadas ou já existem');
   }
 

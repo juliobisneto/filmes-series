@@ -98,6 +98,8 @@ router.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    await db.run('UPDATE users SET last_login = ? WHERE id = ?', [new Date().toISOString(), user.id]);
+
     console.log(`Usuário logado: ${user.email} (ID: ${user.id})`);
 
     res.json({

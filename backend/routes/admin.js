@@ -19,10 +19,11 @@ router.get('/stats', async (req, res) => {
         u.name,
         u.email,
         u.created_at,
+        u.last_login,
         COUNT(m.id) as total_movies
       FROM users u
       LEFT JOIN media m ON u.id = m.user_id
-      GROUP BY u.id, u.name, u.email, u.created_at
+      GROUP BY u.id, u.name, u.email, u.created_at, u.last_login
       ORDER BY total_movies DESC, u.created_at DESC
     `);
 
@@ -31,6 +32,7 @@ router.get('/stats', async (req, res) => {
       id: user.id,
       firstName: user.name.split(' ')[0], // Apenas primeiro nome
       totalMovies: user.total_movies,
+      lastLogin: user.last_login,
       memberSince: user.created_at,
       isAdmin: user.email === 'julio.bisneto@gmail.com'
     }));
